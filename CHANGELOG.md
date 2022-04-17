@@ -7,25 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [X_APP_VERSION2_X] - AAAA-MONTH-DD
-
-## [X_APP_VERSION1_X] - AAAA-MONTH-DD
-
-## [0.0.1] - AAAA-MONTH-DD
-
-### Added
+## [1.0.0]
 
 ### Changed
 
-### Deprecated
+- Remove tool from project bashlib64 and make stand-alone
 
-### Removed
-
-### Fixed
-
-### Security
-
-[Unreleased]: X_PROJECT_GIT_URL_X/compare/X_APP_VERSION2_X...HEAD
-[X_APP_VERSION2_X]: X_PROJECT_GIT_URL_X/compare/X_APP_VERSION1_X...X_APP_VERSION2_X
-[X_APP_VERSION1_X]: X_PROJECT_GIT_URL_X/compare/0.0.1...X_APP_VERSION1_X
-[0.0.1]: X_PROJECT_GIT_URL_X/releases/tag/0.0.1
+[1.0.0]: https://github.com/serdigital64/testmansh/compare/1.0.0...HEAD
+[1.0.0]: https://github.com/serdigital64/testmansh/releases/tag/1.0.0
