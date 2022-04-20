@@ -5,7 +5,7 @@
 # Author: serdigital64 (https://github.com/serdigital64)
 # License: GPL-3.0-or-later (https://www.gnu.org/licenses/gpl-3.0.txt)
 # Repository: https://github.com/serdigital64/bashlib64
-# Version: 1.3.0
+# Version: 1.0.1
 #######################################
 
 #
@@ -2549,9 +2549,9 @@ function testmansh_run_bats() {
   local bats_verbose=''
 
   if [[ "$case" != 'all' ]]; then
-    target="${TESTMANSH_PROJECT}/${case}.bats"
+    target="${TESTMANSH_PROJECT}/${BATSLIB_CASES}/${case}.bats"
   else
-    target="$TESTMANSH_PROJECT"
+    target="${TESTMANSH_PROJECT}/${BATSLIB_CASES}"
   fi
 
   if [[ "$debug" == '1' ]]; then
@@ -2577,9 +2577,9 @@ function testmansh_run_bats_container() {
   local env=''
 
   if [[ "$case" != 'all' ]]; then
-    target="/test/batscore/${case}.bats"
+    target="/test/${BATSLIB_CASES}/${case}.bats"
   else
-    target="/test/batscore"
+    target="/test/${BATSLIB_CASES}"
   fi
 
   [[ -n "$TESTMANSH_ENV" && -r "$TESTMANSH_ENV" ]] && env="--env-file $TESTMANSH_ENV"
@@ -2644,7 +2644,7 @@ function testmansh_list_cases() {
 }
 
 function testmansh_import() {
-  TESTMANSH_PROJECT="${TESTMANSH_PROJECT:-test/batscore}"
+  TESTMANSH_PROJECT="${TESTMANSH_PROJECT:-test/${BATSLIB_CASES}}"
   TESTMANSH_CMD_BATS="${TESTMANSH_CMD_BATS:-/usr/local/bin/bats}"
   TESTMANSH_REGISTRY="${TESTMANSH_REGISTRY:-ghcr.io/serdigital64}"
   TESTMANSH_USER='test'
@@ -2669,7 +2669,8 @@ function testmansh_import() {
 function testmansh_check() {
 
   bl64_check_command "$TESTMANSH_CMD_BATS" &&
-    bl64_check_directory "$TESTMANSH_PROJECT" ||
+    bl64_check_directory "$TESTMANSH_PROJECT" &&
+    bl64_check_directory "${TESTMANSH_PROJECT}/${BATSLIB_CASES}" ||
     return 1
   return 0
 
@@ -2691,7 +2692,7 @@ function testmansh_run_tests_help() {
     ' "
   -p Project : Full path to the project location. Alternative: exported shell variable TESTMANSH_PROJECT. Default: $TESTMANSH_PROJECT
   -c Case    : Test case name. Default: all
-  -e Image   : Image name to use for running the container test. Default: all
+  -e Image   : Image name to use for running the container test (-o) or open (-q). Alternative: exported shell variable TESTMANSH_IMAGES. Default: predefined list
   -r Registry: Container registry URL. Alternative: exported shell variable TESTMANSH_REGISTRY. Default: ${TESTMANSH_REGISTRY}
   -u User    : Use name for container test. Alternative: exported shell variable TESTMANSH_USER. Default: ${TESTMANSH_USER}
   -f EnvFile : Full path to the container environment file. Default: none
@@ -2714,6 +2715,9 @@ export TESTMANSH_ENV
 # Exports
 export BATSLIB_TEMP_PRESERVE_ON_FAILURE
 export BATSLIB_TEMP_PRESERVE
+
+# Constants
+readonly BATSLIB_CASES='batscore'
 
 # Local variables
 declare testmansh_run_tests_status=1

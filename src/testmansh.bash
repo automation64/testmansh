@@ -10,9 +10,9 @@ function testmansh_run_bats() {
   local bats_verbose=''
 
   if [[ "$case" != 'all' ]]; then
-    target="${TESTMANSH_PROJECT}/${case}.bats"
+    target="${TESTMANSH_PROJECT}/${BATSLIB_CASES}/${case}.bats"
   else
-    target="$TESTMANSH_PROJECT"
+    target="${TESTMANSH_PROJECT}/${BATSLIB_CASES}"
   fi
 
   if [[ "$debug" == '1' ]]; then
@@ -38,9 +38,9 @@ function testmansh_run_bats_container() {
   local env=''
 
   if [[ "$case" != 'all' ]]; then
-    target="/test/batscore/${case}.bats"
+    target="/test/${BATSLIB_CASES}/${case}.bats"
   else
-    target="/test/batscore"
+    target="/test/${BATSLIB_CASES}"
   fi
 
   [[ -n "$TESTMANSH_ENV" && -r "$TESTMANSH_ENV" ]] && env="--env-file $TESTMANSH_ENV"
@@ -105,7 +105,7 @@ function testmansh_list_cases() {
 }
 
 function testmansh_import() {
-  TESTMANSH_PROJECT="${TESTMANSH_PROJECT:-test/batscore}"
+  TESTMANSH_PROJECT="${TESTMANSH_PROJECT:-test/${BATSLIB_CASES}}"
   TESTMANSH_CMD_BATS="${TESTMANSH_CMD_BATS:-/usr/local/bin/bats}"
   TESTMANSH_REGISTRY="${TESTMANSH_REGISTRY:-ghcr.io/serdigital64}"
   TESTMANSH_USER='test'
@@ -130,7 +130,8 @@ function testmansh_import() {
 function testmansh_check() {
 
   bl64_check_command "$TESTMANSH_CMD_BATS" &&
-    bl64_check_directory "$TESTMANSH_PROJECT" ||
+    bl64_check_directory "$TESTMANSH_PROJECT" &&
+    bl64_check_directory "${TESTMANSH_PROJECT}/${BATSLIB_CASES}" ||
     return 1
   return 0
 
@@ -175,6 +176,9 @@ export TESTMANSH_ENV
 # Exports
 export BATSLIB_TEMP_PRESERVE_ON_FAILURE
 export BATSLIB_TEMP_PRESERVE
+
+# Constants
+readonly BATSLIB_CASES='batscore'
 
 # Local variables
 declare testmansh_run_tests_status=1
