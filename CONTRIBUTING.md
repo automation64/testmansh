@@ -27,7 +27,7 @@
 source bin/devtmsh-set
 ```
 
-## Testing
+- Download the latest version of [BashLib64](https://github.com/serdigital64/bashlib64) to: `lib/`
 
 ## Repositories
 
