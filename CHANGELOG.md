@@ -7,11 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.0.1]
+## [1.2.0]
 
-### Fixed
+### Added
 
-- Added missing cases paths to native test
+- ShellCheck support
+
+### Changed
+
+- Refactored default paths to allow case selection based on project location
+
+## [1.1.0]
+
+### Changed
+
+- Updated bashlib64 to v1.27.0
 
 ## [1.0.0]
 
@@ -19,6 +29,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Remove tool from project bashlib64 and make stand-alone
 
-[1.0.0]: https://github.com/serdigital64/testmansh/compare/1.0.1...HEAD
-[1.0.1]: https://github.com/serdigital64/testmansh/compare/1.0.0...1.0.1
+[1.2.0]: https://github.com/serdigital64/testmansh/compare/1.1.0...HEAD
+[1.1.0]: https://github.com/serdigital64/testmansh/compare/1.0.0...1.1.0
 [1.0.0]: https://github.com/serdigital64/testmansh/releases/tag/1.0.0
