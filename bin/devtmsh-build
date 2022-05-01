@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 source bin/devtmsh-set || exit 1
-source "$DEVTMSH_BIN/bashlib64.bash"
+source "$DEVTMSH_LIB_BASHLIB64"
 
 bl64_fs_rm_file "$DEVTMSH_BUILD_PROD"
 bl64_fs_merge_files \
@@ -10,5 +10,5 @@ bl64_fs_merge_files \
   "$BL64_LIB_DEFAULT" \
   "$DEVTMSH_BUILD_PROD" \
   "$DEVTMSH_SRC/testmansh.header" \
-  "$DEVTMSH_SRC/bashlib64.bash" \
+  "$DEVTMSH_LIB_BASHLIB64" \
   "$DEVTMSH_SRC/testmansh.bash"
