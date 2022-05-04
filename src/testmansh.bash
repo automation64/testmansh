@@ -1,29 +1,4 @@
 #
-###[ embedded-bashlib64-end ]#####################
-#
-
-#
-# Globals
-#
-
-# Imports
-export TESTMANSH_PROJECT
-export TESTMANSH_DEFAULT_TEST_PREFIX
-export TESTMANSH_DEFAULT_LINT_PREFIX
-export TESTMANSH_DEFAULT_TEST_PATH
-export TESTMANSH_DEFAULT_LINT_PATH
-export TESTMANSH_CMD_BATS
-export TESTMANSH_CMD_SHELLCHECK
-export TESTMANSH_REGISTRY
-export TESTMANSH_IMAGES_TEST
-export TESTMANSH_IMAGES_LINT
-export TESTMANSH_ENV
-
-# Exports
-export BATSLIB_TEMP_PRESERVE_ON_FAILURE
-export BATSLIB_TEMP_PRESERVE
-
-#
 # Functions
 #
 
@@ -233,36 +208,34 @@ function testmansh_check_requirements() {
 
   bl64_check_directory "$TESTMANSH_PROJECT" || return $?
 
-  if [[ "$testmansh_container" == "$BL64_LIB_VAR_ON" ]]; then
-    bl64_check_command "$DEVBL_CMD_PODMAN" || return $?
-  fi
   return 0
 
 }
 
 function testmansh_help() {
   bl64_msg_show_usage \
-    '<-b|-t|-q|-l|-i|k> [-p Project] [-c Case] [-e Image] [-r Registry] [-s BatsCore] [-f EnvFile] [-m Format] [-g] [-h]' \
+    '<-b|-t|-q|-l|-i|k> [-p Project] [-c Case] [-e Image] [-r Registry] [-s BatsCore] [-u ShellCheck] [-f EnvFile] [-m Format] [-g] [-h]' \
     'Run test cases' \
     '
-  -b         : Run bats-core tests
-  -t         : Run shellcheck linter
-  -q         : Open bats-core container
-  -l         : List bats-core test cases
-  -i         : List bats-core container images
-  -k         : List shellcheck targets
+  -b           : Run bats-core tests
+  -t           : Run shellcheck linter
+  -q           : Open bats-core container
+  -l           : List bats-core test cases
+  -i           : List bats-core container images
+  -k           : List shellcheck targets
     ' '
-  -g         : Enable debug mode
-  -o         : Enable container mode (for -b and -t)
-  -h         : Show Help
+  -g           : Enable debug mode
+  -o           : Enable container mode (for -b and -t)
+  -h           : Show Help
     ' "
-  -p Project : Full path to the project location. Alternative: exported shell variable TESTMANSH_PROJECT. Default: ${TESTMANSH_PROJECT}
-  -c Case    : Test case name. Default: all. Format: path/file (relative to Project)
-  -e Image   : Image name to use for running the container test (-b) or open (-q). Alternative: exported shell variable TESTMANSH_IMAGES_TEST. Default: predefined list
-  -r Registry: Container registry URL. Alternative: exported shell variable TESTMANSH_REGISTRY. Default: ${TESTMANSH_REGISTRY}
-  -f EnvFile : Full path to the container environment file. Default: none
-  -s BatsCore: Full path to the bats-core shell script. Alternative: exported shell variable TESTMANSH_CMD_BATS. Default: ${TESTMANSH_CMD_BATS}
-  -m Format  : Set report format type. Valued values: shellcheck and bats-core dependant
+  -p Project   : Full path to the project location. Alternative: exported shell variable TESTMANSH_PROJECT. Default: current location
+  -c Case      : Test case name. Default: all. Format: path/file (relative to Project)
+  -e Image     : Image name to use for running the container test (-b) or open (-q). Alternative: exported shell variable TESTMANSH_IMAGES_TEST. Default: predefined list
+  -r Registry  : Container registry URL. Alternative: exported shell variable TESTMANSH_REGISTRY
+  -f EnvFile   : Full path to the container environment file. Default: none
+  -s BatsCore  : Full path to the bats-core shell script. Alternative: exported shell variable TESTMANSH_CMD_BATS
+  -u ShellCheck: Full path to the bats-core shell script. Alternative: exported shell variable TESTMANSH_CMD_BATS
+  -m Format    : Set report format type. Valued values: shellcheck and bats-core dependant
     "
 }
 
@@ -280,9 +253,8 @@ declare testmansh_debug="$BL64_LIB_VAR_OFF"
 declare testmansh_format="$BL64_LIB_DEFAULT"
 declare testmansh_container="$BL64_LIB_VAR_OFF"
 
-testmansh_setup_globals
 (($# == 0)) && testmansh_help && exit 1
-while getopts ':tbliokqs:p:c:e:r:f:m:gh' testmansh_option; do
+while getopts ':tbliokqs:p:c:e:r:f:m:u:gh' testmansh_option; do
   case "$testmansh_option" in
   t)
     testmansh_command='testmansh_run_linter'
@@ -311,19 +283,20 @@ while getopts ':tbliokqs:p:c:e:r:f:m:gh' testmansh_option; do
   m) testmansh_format="$OPTARG" ;;
   p)
     TESTMANSH_PROJECT="$OPTARG"
-    TESTMANSH_DEFAULT_TEST_PATH="${TESTMANSH_PROJECT}/${TESTMANSH_DEFAULT_TEST_PREFIX}"
-    TESTMANSH_DEFAULT_LINT_PATH="${TESTMANSH_PROJECT}/${TESTMANSH_DEFAULT_LINT_PREFIX}"
     ;;
   s) TESTMANSH_CMD_BATS="$OPTARG" ;;
+  u) TESTMANSH_CMD_SHELLCHECK="$OPTARG" ;;
   r) TESTMANSH_REGISTRY="$OPTARG" ;;
   e) TESTMANSH_IMAGES_TEST="$OPTARG" ;;
   f) TESTMANSH_ENV="$OPTARG" ;;
   c) testmansh_case="$OPTARG" ;;
   g) testmansh_debug="$BL64_LIB_VAR_ON" ;;
   o) testmansh_container="$BL64_LIB_VAR_ON" ;;
-  h | \? | *) testmansh_help && exit 1 ;;
+  h) testmansh_help && exit 0 ;;
+  *) testmansh_help && exit 1 ;;
   esac
 done
+testmansh_setup_globals
 testmansh_check_requirements || exit 1
 
 bl64_msg_show_batch_start "$testmansh_command_tag"
