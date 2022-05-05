@@ -3,7 +3,7 @@ setup() {
 }
 
 @test "testmansh: -t" {
-  run "$DEVTMSH_TEST_TARGET" -t -c "${DEVTMSH_TEST_SAMPLES}/simple.bash"
+  run "$DEVTMSH_TEST_TARGET" -t -c "test/samples/simple.bash"
 
   assert_success
 }
