@@ -40,7 +40,7 @@ function testmansh_run_linter_container() {
   shift
   bl64_cnt_run_interactive \
     --volume "${TESTMANSH_PROJECT}:/src" \
-    "$TESTMANSH_IMAGES_LINT" \
+    "${TESTMANSH_REGISTRY}/${TESTMANSH_IMAGES_LINT}" \
     $flags \
     "$@"
 }
