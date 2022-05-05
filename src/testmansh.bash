@@ -215,7 +215,7 @@ function testmansh_check_requirements() {
 function testmansh_help() {
   bl64_msg_show_usage \
     '<-b|-t|-q|-l|-i|k> [-p Project] [-c Case] [-e Image] [-r Registry] [-s BatsCore] [-u ShellCheck] [-f EnvFile] [-m Format] [-g] [-h]' \
-    'Run test cases' \
+    'Simple tool for testing Bash scripts in either native environment or purpose-build container images.' \
     '
   -b           : Run bats-core tests
   -t           : Run shellcheck linter
