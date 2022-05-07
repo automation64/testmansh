@@ -1,4 +1,6 @@
 external-sources=true
+source-path=bin
+source-path=lib
 enable=add-default-case
 enable=avoid-nullary-conditions
 enable=check-unassigned-uppercase

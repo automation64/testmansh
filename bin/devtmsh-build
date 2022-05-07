@@ -9,7 +9,8 @@ bl64_fs_merge_files \
   "$BL64_LIB_DEFAULT" \
   "$BL64_LIB_DEFAULT" \
   "$DEVTMSH_BUILD_PROD" \
-  "${DEVTMSH_SRC}/${DEVTMSH_APP_NAME}.header" \
+  "${DEVTMSH_SRC}/${DEVTMSH_APP_NAME}-header.bash" \
   "$DEVTMSH_LIB_BASHLIB64" \
-  "${DEVTMSH_SRC}/${DEVTMSH_APP_NAME}.env" \
-  "${DEVTMSH_SRC}/${DEVTMSH_APP_NAME}.bash"
+  "${DEVTMSH_SRC}/${DEVTMSH_APP_NAME}-env.bash" \
+  "${DEVTMSH_SRC}/${DEVTMSH_APP_NAME}-functions.bash" \
+  "${DEVTMSH_SRC}/${DEVTMSH_APP_NAME}-main.bash"
