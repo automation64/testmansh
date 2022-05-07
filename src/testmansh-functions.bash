@@ -3,7 +3,6 @@
 #
 
 function testmansh_run_linter() {
-
   local container="$1"
   local format="$2"
   local case="$3"
@@ -18,6 +17,7 @@ function testmansh_run_linter() {
     bl64_check_directory "$TESTMANSH_DEFAULT_LINT_PATH" 'default path for source code files not found. Please use -c to indicate where cases are.' || return $?
     [[ "$container" == "$BL64_LIB_VAR_ON" ]] && prefix="/src/${TESTMANSH_DEFAULT_LINT_PREFIX}"
     target="$(
+      # shellcheck disable=SC2164
       cd "$TESTMANSH_DEFAULT_LINT_PATH"
       bl64_fs_find_files | bl64_fmt_list_to_string "$BL64_LIB_DEFAULT" "${prefix}/"
     )"
@@ -25,6 +25,7 @@ function testmansh_run_linter() {
     target="$case"
   fi
 
+  # shellcheck disable=SC2086
   if [[ "$container" == "$BL64_LIB_VAR_ON" ]]; then
     testmansh_run_linter_container "$format" "$flags" $target
   else
@@ -38,6 +39,7 @@ function testmansh_run_linter_container() {
 
   shift
   shift
+  # shellcheck disable=SC2086
   bl64_cnt_run_interactive \
     --volume "${TESTMANSH_PROJECT}:/src" \
     "${TESTMANSH_REGISTRY}/${TESTMANSH_IMAGES_LINT}" \
@@ -54,6 +56,7 @@ function testmansh_run_linter_native() {
   shift
   shift
   cd "$TESTMANSH_PROJECT" || return 1
+  # shellcheck disable=SC2086
   "$TESTMANSH_CMD_SHELLCHECK" \
     $flags \
     "$@"
@@ -82,7 +85,7 @@ function testmansh_run_test() {
     case="${TESTMANSH_DEFAULT_TEST_PREFIX}"
     bl64_check_directory "$TESTMANSH_DEFAULT_TEST_PATH" 'default path for test-cases not found. Please use -c to indicate where the code is.' || return $?
   else
-    case="${case}.bats"
+    [[ ! -d ${TESTMANSH_PROJECT}/${case} ]] && case="${case}.bats"
   fi
 
   if [[ "$container" == "$BL64_LIB_VAR_ON" ]]; then
@@ -90,7 +93,6 @@ function testmansh_run_test() {
   else
     testmansh_run_test_native "$flags" "${TESTMANSH_PROJECT}/${case}"
   fi
-
 }
 
 function testmansh_run_test_native() {
@@ -125,25 +127,23 @@ function testmansh_run_test_container() {
       $flags \
       "$target"
   done
-
 }
 
 function testmansh_open_container() {
-
   local target='/bin/bash'
   local env_file=''
 
   [[ -n "$TESTMANSH_ENV" && -r "$TESTMANSH_ENV" ]] && env_file="--env-file $TESTMANSH_ENV"
   bl64_dbg_app_show_vars 'env'
 
-  bl64_cnt_run_interactive
-  $env_file \
+  # shellcheck disable=SC2086
+  bl64_cnt_run_interactive \
+    $env_file \
     --env BATSLIB_TEMP_PRESERVE_ON_FAILURE \
     --env BATSLIB_TEMP_PRESERVE \
     --volume "${TESTMANSH_PROJECT}:/test" \
     --entrypoint "$target" \
     "${TESTMANSH_REGISTRY}/${TESTMANSH_IMAGES_TEST}"
-
 }
 
 function testmansh_list_images() {
@@ -154,25 +154,22 @@ function testmansh_list_images() {
 }
 
 function testmansh_list_test_scope() {
-
   bl64_check_directory "$TESTMANSH_DEFAULT_TEST_PATH" 'default path for test-cases not found. Please use -c to indicate where the code is.' || return $?
   bl64_msg_show_text "Test cases scope for bats-core (project: $TESTMANSH_PROJECT)"
+  # shellcheck disable=SC2164
   cd "$TESTMANSH_PROJECT"
   bl64_fs_find_files "$TESTMANSH_DEFAULT_TEST_PREFIX"
-
 }
 
 function testmansh_list_linter_scope() {
-
   bl64_check_directory "$TESTMANSH_DEFAULT_LINT_PATH" 'default path for source code files not found. Please use -c to indicate where cases are.' || return $?
   bl64_msg_show_text "Source code scope for shellcheck (project: $TESTMANSH_PROJECT)"
+  # shellcheck disable=SC2164
   cd "$TESTMANSH_PROJECT"
   bl64_fs_find_files "$TESTMANSH_DEFAULT_LINT_PREFIX"
-
 }
 
 function testmansh_setup_globals() {
-
   TESTMANSH_CMD_BATS="${TESTMANSH_CMD_BATS:-/usr/local/bin/bats}"
   TESTMANSH_CMD_SHELLCHECK="${TESTMANSH_CMD_SHELLCHECK:-/usr/bin/shellcheck}"
   TESTMANSH_REGISTRY="${TESTMANSH_REGISTRY:-ghcr.io/serdigital64}"
@@ -199,17 +196,14 @@ function testmansh_setup_globals() {
     TESTMANSH_IMAGES_TEST="$TESTMANSH_IMAGES_TEST ubuntu-20.4-bash-test:0.7.0 ubuntu-21.4-bash-test:0.5.0"
   fi
   TESTMANSH_IMAGES_LINT='alpine-3-shell-lint:0.1.0'
-  return 0
 }
 
 function testmansh_check_requirements() {
-
   [[ -z "$testmansh_command" ]] && testmansh_help && return 1
 
   bl64_check_directory "$TESTMANSH_PROJECT" || return $?
 
   return 0
-
 }
 
 function testmansh_help() {
@@ -234,79 +228,7 @@ function testmansh_help() {
   -r Registry  : Container registry URL. Alternative: exported shell variable TESTMANSH_REGISTRY
   -f EnvFile   : Full path to the container environment file. Default: none
   -s BatsCore  : Full path to the bats-core shell script. Alternative: exported shell variable TESTMANSH_CMD_BATS
-  -u ShellCheck: Full path to the bats-core shell script. Alternative: exported shell variable TESTMANSH_CMD_BATS
+  -u ShellCheck: Full path to the bats-core shell script. Alternative: exported shell variable TESTMANSH_CMD_SHELLCHECK
   -m Format    : Set report format type. Valued values: shellcheck and bats-core dependant
     "
 }
-
-#
-# Main
-#
-
-# Local variables
-declare testmansh_status=1
-declare testmansh_command=''
-declare testmansh_command_tag=''
-declare testmansh_option=''
-declare testmansh_case='all'
-declare testmansh_debug="$BL64_LIB_VAR_OFF"
-declare testmansh_format="$BL64_LIB_DEFAULT"
-declare testmansh_container="$BL64_LIB_VAR_OFF"
-
-(($# == 0)) && testmansh_help && exit 1
-while getopts ':tbliokqs:p:c:e:r:f:m:u:gh' testmansh_option; do
-  case "$testmansh_option" in
-  t)
-    testmansh_command='testmansh_run_linter'
-    testmansh_command_tag='run shellcheck linter'
-    ;;
-  b)
-    testmansh_command='testmansh_run_test'
-    testmansh_command_tag='run bats-core tests'
-    ;;
-  l)
-    testmansh_command='testmansh_list_test_scope'
-    testmansh_command_tag='list test cases for bats-core'
-    ;;
-  i)
-    testmansh_command='testmansh_list_images'
-    testmansh_command_tag='list container images'
-    ;;
-  k)
-    testmansh_command='testmansh_list_linter_scope'
-    testmansh_command_tag='list source code files for shellcheck'
-    ;;
-  q)
-    testmansh_command='testmansh_open_container'
-    testmansh_command_tag='open testing container'
-    ;;
-  m) testmansh_format="$OPTARG" ;;
-  p)
-    TESTMANSH_PROJECT="$OPTARG"
-    ;;
-  s) TESTMANSH_CMD_BATS="$OPTARG" ;;
-  u) TESTMANSH_CMD_SHELLCHECK="$OPTARG" ;;
-  r) TESTMANSH_REGISTRY="$OPTARG" ;;
-  e) TESTMANSH_IMAGES_TEST="$OPTARG" ;;
-  f) TESTMANSH_ENV="$OPTARG" ;;
-  c) testmansh_case="$OPTARG" ;;
-  g) testmansh_debug="$BL64_LIB_VAR_ON" ;;
-  o) testmansh_container="$BL64_LIB_VAR_ON" ;;
-  h) testmansh_help && exit 0 ;;
-  *) testmansh_help && exit 1 ;;
-  esac
-done
-testmansh_setup_globals
-testmansh_check_requirements || exit 1
-
-bl64_msg_show_batch_start "$testmansh_command_tag"
-case "$testmansh_command" in
-'testmansh_list_test_scope' | 'testmansh_list_images' | 'testmansh_open_container' | 'testmansh_list_linter_scope') "$testmansh_command" ;;
-'testmansh_run_linter') "$testmansh_command" "$testmansh_container" "$testmansh_format" "$testmansh_case" ;;
-'testmansh_run_test') "$testmansh_command" "$testmansh_container" "$testmansh_format" "$testmansh_debug" "$testmansh_case" ;;
-*) bl64_check_show_undefined "$testmansh_command" ;;
-esac
-testmansh_status=$?
-
-bl64_msg_show_batch_finish $testmansh_status "$testmansh_command_tag"
-exit $testmansh_status
