@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.4.0]
+
+### Added
+
+- Allow parameter -c (case) to accept directories in addition to all and files
+
+### Fixed
+
+- Fixed container open option
+
 ## [1.3.0]
 
 ### Added
