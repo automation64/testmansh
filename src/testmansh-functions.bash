@@ -186,14 +186,14 @@ function testmansh_setup_globals() {
 
   if [[ -z "$TESTMANSH_IMAGES_TEST" ]]; then
     TESTMANSH_IMAGES_TEST=''
-    TESTMANSH_IMAGES_TEST="$TESTMANSH_IMAGES_TEST almalinux-8-bash-test:0.3.0"
-    TESTMANSH_IMAGES_TEST="$TESTMANSH_IMAGES_TEST alpine-3-bash-test:0.3.0"
-    TESTMANSH_IMAGES_TEST="$TESTMANSH_IMAGES_TEST rhel-8-bash-test:0.4.0"
-    TESTMANSH_IMAGES_TEST="$TESTMANSH_IMAGES_TEST centos-7-bash-test:0.2.0 centos-8-bash-test:0.3.0 centos-9-bash-test:0.2.0"
-    TESTMANSH_IMAGES_TEST="$TESTMANSH_IMAGES_TEST oraclelinux-7-bash-test:0.2.0 oraclelinux-8-bash-test:0.5.0"
-    TESTMANSH_IMAGES_TEST="$TESTMANSH_IMAGES_TEST fedora-33-bash-test:0.5.0 fedora-34-bash-test:0.2.0 fedora-35-bash-test:0.5.0"
-    TESTMANSH_IMAGES_TEST="$TESTMANSH_IMAGES_TEST debian-9-bash-test:0.2.0 debian-10-bash-test:0.5.0 debian-11-bash-test:0.5.0"
-    TESTMANSH_IMAGES_TEST="$TESTMANSH_IMAGES_TEST ubuntu-20.4-bash-test:0.7.0 ubuntu-21.4-bash-test:0.5.0"
+    TESTMANSH_IMAGES_TEST="$TESTMANSH_IMAGES_TEST almalinux-8-bash-test:latest"
+    TESTMANSH_IMAGES_TEST="$TESTMANSH_IMAGES_TEST alpine-3-bash-test:latest"
+    TESTMANSH_IMAGES_TEST="$TESTMANSH_IMAGES_TEST rhel-8-bash-test:latest"
+    TESTMANSH_IMAGES_TEST="$TESTMANSH_IMAGES_TEST centos-7-bash-test:latest centos-8-bash-test:latest centos-9-bash-test:latest"
+    TESTMANSH_IMAGES_TEST="$TESTMANSH_IMAGES_TEST oraclelinux-7-bash-test:latest oraclelinux-8-bash-test:latest"
+    TESTMANSH_IMAGES_TEST="$TESTMANSH_IMAGES_TEST fedora-33-bash-test:latest fedora-34-bash-test:latest fedora-35-bash-test:latest"
+    TESTMANSH_IMAGES_TEST="$TESTMANSH_IMAGES_TEST debian-9-bash-test:latest debian-10-bash-test:latest debian-11-bash-test:latest"
+    TESTMANSH_IMAGES_TEST="$TESTMANSH_IMAGES_TEST ubuntu-20.4-bash-test:latest ubuntu-21.4-bash-test:latest"
   fi
   TESTMANSH_IMAGES_LINT='alpine-3-shell-lint:0.1.0'
 }
