@@ -170,6 +170,8 @@ function testmansh_list_linter_scope() {
 }
 
 function testmansh_setup_globals() {
+  bl64_cnt_setup || return $?
+
   TESTMANSH_CMD_BATS="${TESTMANSH_CMD_BATS:-/usr/local/bin/bats}"
   TESTMANSH_CMD_SHELLCHECK="${TESTMANSH_CMD_SHELLCHECK:-/usr/bin/shellcheck}"
   TESTMANSH_REGISTRY="${TESTMANSH_REGISTRY:-ghcr.io/serdigital64}"
