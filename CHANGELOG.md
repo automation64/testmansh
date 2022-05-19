@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.6.0]
+
+### Added
+
+- Container variables for bats-core test-cases
+
+### Changed
+
+- Set default path for container env option -f
+
 ## [1.5.0]
 
 ### Changed
