@@ -8,21 +8,48 @@ function testmansh_run_linter() {
   local case="$3"
   local target=''
   local flags=''
-  local prefix="${TESTMANSH_DEFAULT_LINT_PREFIX}"
+  local prefix=''
 
   [[ "$format" == "$BL64_LIB_DEFAULT" ]] && format='gcc'
-  flags="--shell=bash --color=never --wiki-link-count=0 --format=$format"
+  flags="--shell=bash --color=never --wiki-link-count=0 --external-sources --severity=style --format=$format"
 
   if [[ "$case" == 'all' ]]; then
     bl64_check_directory "$TESTMANSH_DEFAULT_LINT_PATH" 'default path for source code files not found. Please use -c to indicate where cases are.' || return $?
-    [[ "$container" == "$BL64_LIB_VAR_ON" ]] && prefix="/src/${TESTMANSH_DEFAULT_LINT_PREFIX}"
+
+    if [[ "$container" == "$BL64_LIB_VAR_ON" ]]; then
+      prefix="/prj/${TESTMANSH_DEFAULT_LINT_PREFIX}/"
+    else
+      prefix="$TESTMANSH_DEFAULT_LINT_PREFIX"
+    fi
+
+    # shellcheck disable=SC2164
     target="$(
-      # shellcheck disable=SC2164
       cd "$TESTMANSH_DEFAULT_LINT_PATH"
-      bl64_fs_find_files | bl64_fmt_list_to_string "$BL64_LIB_DEFAULT" "${prefix}/"
+      bl64_fs_find_files | bl64_fmt_list_to_string "$BL64_LIB_DEFAULT" "${prefix}"
     )"
+
+  elif [[ -d "${TESTMANSH_PROJECT}/${case}" ]]; then
+
+    if [[ "$container" == "$BL64_LIB_VAR_ON" ]]; then
+      prefix="/prj/${case}/"
+    else
+      prefix="${case}/"
+    fi
+
+    # shellcheck disable=SC2164
+    target="$(
+      cd "${TESTMANSH_PROJECT}/${case}"
+      bl64_fs_find_files | bl64_fmt_list_to_string "$BL64_LIB_DEFAULT" "${prefix}"
+    )"
+  elif [[ -f "${TESTMANSH_PROJECT}/${case}" ]]; then
+    if [[ "$container" == "$BL64_LIB_VAR_ON" ]]; then
+      target="/prj/${case}"
+    else
+      target="$case"
+    fi
   else
-    target="$case"
+    bl64_msg_show_error "source path not found ($case)"
+    return 1
   fi
 
   # shellcheck disable=SC2086
@@ -41,7 +68,7 @@ function testmansh_run_linter_container() {
   shift
   # shellcheck disable=SC2086
   bl64_cnt_run_interactive \
-    --volume "${TESTMANSH_PROJECT}:/src" \
+    --volume "${TESTMANSH_PROJECT}:/prj" \
     "${TESTMANSH_REGISTRY}/${TESTMANSH_IMAGES_LINT}" \
     $flags \
     "$@"
@@ -120,12 +147,23 @@ function testmansh_run_test_container() {
     # shellcheck disable=SC2086
     bl64_cnt_run \
       $env_file \
+      --env TESTMANSH_BIN \
+      --env TESTMANSH_SRC \
+      --env TESTMANSH_LIB \
+      --env TESTMANSH_TEST \
+      --env TESTMANSH_TEST_SAMPLES \
+      --env TESTMANSH_TEST_LIB \
+      --env TESTMANSH_TEST_BATSCORE_SETUP \
+      --env TESTMANSH_BATS_HELPER_SUPPORT \
+      --env TESTMANSH_BATS_HELPER_ASSERT \
+      --env TESTMANSH_BATS_HELPER_FILE \
       --env BATSLIB_TEMP_PRESERVE_ON_FAILURE \
       --env BATSLIB_TEMP_PRESERVE \
       --volume "${TESTMANSH_PROJECT}:/test" \
       "${TESTMANSH_REGISTRY}/${container}" \
       $flags \
-      "$target"
+      "$target" ||
+      return $?
   done
 }
 
@@ -139,6 +177,16 @@ function testmansh_open_container() {
   # shellcheck disable=SC2086
   bl64_cnt_run_interactive \
     $env_file \
+    --env TESTMANSH_BIN \
+    --env TESTMANSH_SRC \
+    --env TESTMANSH_LIB \
+    --env TESTMANSH_TEST \
+    --env TESTMANSH_TEST_SAMPLES \
+    --env TESTMANSH_TEST_LIB \
+    --env TESTMANSH_TEST_BATSCORE_SETUP \
+    --env TESTMANSH_BATS_HELPER_SUPPORT \
+    --env TESTMANSH_BATS_HELPER_ASSERT \
+    --env TESTMANSH_BATS_HELPER_FILE \
     --env BATSLIB_TEMP_PRESERVE_ON_FAILURE \
     --env BATSLIB_TEMP_PRESERVE \
     --volume "${TESTMANSH_PROJECT}:/test" \
@@ -184,7 +232,7 @@ function testmansh_setup_globals() {
   TESTMANSH_DEFAULT_LINT_PATH="${TESTMANSH_PROJECT}/${TESTMANSH_DEFAULT_LINT_PREFIX}"
 
   TESTMANSH_IMAGES_TEST="${TESTMANSH_IMAGES_TEST:-}"
-  TESTMANSH_ENV="${TESTMANSH_ENV:-}"
+  TESTMANSH_ENV="${TESTMANSH_ENV:-${TESTMANSH_PROJECT}/test/container.env}"
 
   if [[ -z "$TESTMANSH_IMAGES_TEST" ]]; then
     TESTMANSH_IMAGES_TEST=''
@@ -197,7 +245,7 @@ function testmansh_setup_globals() {
     TESTMANSH_IMAGES_TEST="$TESTMANSH_IMAGES_TEST debian-9-bash-test:latest debian-10-bash-test:latest debian-11-bash-test:latest"
     TESTMANSH_IMAGES_TEST="$TESTMANSH_IMAGES_TEST ubuntu-20.4-bash-test:latest ubuntu-21.4-bash-test:latest"
   fi
-  TESTMANSH_IMAGES_LINT='alpine-3-shell-lint:0.1.0'
+  TESTMANSH_IMAGES_LINT='alpine-3-shell-lint:latest'
 }
 
 function testmansh_check_requirements() {
@@ -211,7 +259,7 @@ function testmansh_check_requirements() {
 function testmansh_help() {
   bl64_msg_show_usage \
     '<-b|-t|-q|-l|-i|k> [-p Project] [-c Case] [-e Image] [-r Registry] [-s BatsCore] [-u ShellCheck] [-f EnvFile] [-m Format] [-g] [-h]' \
-    'Simple tool for testing Bash scripts in either native environment or purpose-build container images.' \
+    'Simple tool for testing Bash scripts with shellcheck and bats-core in either native environment or purpose-build container images.' \
     '
   -b           : Run bats-core tests
   -t           : Run shellcheck linter
@@ -225,10 +273,10 @@ function testmansh_help() {
   -h           : Show Help
     ' "
   -p Project   : Full path to the project location. Alternative: exported shell variable TESTMANSH_PROJECT. Default: current location
-  -c Case      : Test case name. Default: all. Format: path/file (relative to Project)
+  -c Case      : Test case name (for -b) or source code (for -t). Default: all. Format: path/file or path/ (relative to TESTMANSH_PROJECT)
   -e Image     : Image name to use for running the container test (-b) or open (-q). Alternative: exported shell variable TESTMANSH_IMAGES_TEST. Default: predefined list
   -r Registry  : Container registry URL. Alternative: exported shell variable TESTMANSH_REGISTRY
-  -f EnvFile   : Full path to the container environment file. Default: none
+  -f EnvFile   : Full path to the container environment file. Default: TESTMANSH_PROJECT/test/container.env
   -s BatsCore  : Full path to the bats-core shell script. Alternative: exported shell variable TESTMANSH_CMD_BATS
   -u ShellCheck: Full path to the bats-core shell script. Alternative: exported shell variable TESTMANSH_CMD_SHELLCHECK
   -m Format    : Set report format type. Valued values: shellcheck and bats-core dependant
