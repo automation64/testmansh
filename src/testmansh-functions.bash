@@ -73,7 +73,7 @@ function testmansh_run_test() {
   flags="--recursive --formatter $format"
 
   if [[ "$debug" == '1' ]]; then
-    flags="$flags --timing --verbose-run --no-tempdir-cleanup --print-output-on-failure"
+    flags="$flags --timing --verbose-run --no-tempdir-cleanup --print-output-on-failure --show-output-of-passing-tests"
     BATSLIB_TEMP_PRESERVE_ON_FAILURE=1
     BATSLIB_TEMP_PRESERVE=1
   else
@@ -118,7 +118,7 @@ function testmansh_run_test_container() {
     unset IFS
     bl64_msg_show_task "run test cases on the container image: $container"
     # shellcheck disable=SC2086
-    bl64_cnt_run_interactive \
+    bl64_cnt_run \
       $env_file \
       --env BATSLIB_TEMP_PRESERVE_ON_FAILURE \
       --env BATSLIB_TEMP_PRESERVE \
