@@ -5,5 +5,5 @@ enable=add-default-case
 enable=avoid-nullary-conditions
 enable=check-unassigned-uppercase
 enable=deprecate-which
-enable=quote-safe-variables
+#enable=quote-safe-variables
 #enable=require-variable-braces
