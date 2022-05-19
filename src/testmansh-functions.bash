@@ -19,7 +19,7 @@ function testmansh_run_linter() {
     if [[ "$container" == "$BL64_LIB_VAR_ON" ]]; then
       prefix="/prj/${TESTMANSH_DEFAULT_LINT_PREFIX}/"
     else
-      prefix="$TESTMANSH_DEFAULT_LINT_PREFIX"
+      prefix="$TESTMANSH_DEFAULT_LINT_PREFIX/"
     fi
 
     # shellcheck disable=SC2164
