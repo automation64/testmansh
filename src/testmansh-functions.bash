@@ -5,13 +5,19 @@
 function testmansh_run_linter() {
   local container="$1"
   local format="$2"
-  local case="$3"
+  local report="$3"
+  local case="$4"
   local target=''
-  local flags=''
+  local flags='--shell=bash --color=never --wiki-link-count=0 --external-sources --severity=style'
   local prefix=''
 
-  [[ "$format" == "$BL64_LIB_DEFAULT" ]] && format='gcc'
-  flags="--shell=bash --color=never --wiki-link-count=0 --external-sources --severity=style --format=$format"
+  # Set report output and format
+  if [[ "$report" != "$BL64_LIB_DEFAULT" ]]; then
+    flags="${flags} --format checkstyle"
+  else
+    [[ "$format" == "$BL64_LIB_DEFAULT" ]] && format='gcc'
+    flags="${flags} --format $format"
+  fi
 
   if [[ "$case" == 'all' ]]; then
     bl64_check_directory "$TESTMANSH_DEFAULT_LINT_PATH" 'default path for source code files not found. Please use -c to indicate where cases are.' || return $?
@@ -54,9 +60,17 @@ function testmansh_run_linter() {
 
   # shellcheck disable=SC2086
   if [[ "$container" == "$BL64_LIB_VAR_ON" ]]; then
-    testmansh_run_linter_container "$format" "$flags" $target
+    if [[ "$report" != "$BL64_LIB_DEFAULT" ]]; then
+      testmansh_run_linter_container "$format" "$flags" $target >"$report"
+    else
+      testmansh_run_linter_container "$format" "$flags" $target
+    fi
   else
-    testmansh_run_linter_native "$format" "$flags" $target
+    if [[ "$report" != "$BL64_LIB_DEFAULT" ]]; then
+      testmansh_run_linter_native "$format" "$flags" $target >"$report"
+    else
+      testmansh_run_linter_native "$format" "$flags" $target
+    fi
   fi
 }
 
@@ -92,12 +106,18 @@ function testmansh_run_linter_native() {
 function testmansh_run_test() {
   local container="$1"
   local format="$2"
-  local debug="$3"
-  local case="$4"
-  local flags=''
+  local report="$3"
+  local debug="$4"
+  local case="$5"
+  local flags='--recursive'
 
-  [[ "$format" == "$BL64_LIB_DEFAULT" ]] && format='tap'
-  flags="--recursive --formatter $format"
+  # Set report output and format
+  if [[ "$report" != "$BL64_LIB_DEFAULT" ]]; then
+    flags="${flags} --formatter junit"
+  else
+    [[ "$format" == "$BL64_LIB_DEFAULT" ]] && format='tap'
+    flags="${flags} --formatter $format"
+  fi
 
   if [[ "$debug" == '1' ]]; then
     flags="$flags --timing --verbose-run --no-tempdir-cleanup --print-output-on-failure --show-output-of-passing-tests"
@@ -116,9 +136,17 @@ function testmansh_run_test() {
   fi
 
   if [[ "$container" == "$BL64_LIB_VAR_ON" ]]; then
-    testmansh_run_test_container "$flags" "${TESTMANSH_CONTAINER64_PROJECT}/${case}"
+    if [[ "$report" != "$BL64_LIB_DEFAULT" ]]; then
+      testmansh_run_test_container "$flags" "${TESTMANSH_CONTAINER64_PROJECT}/${case}" >"$report"
+    else
+      testmansh_run_test_container "$flags" "${TESTMANSH_CONTAINER64_PROJECT}/${case}"
+    fi
   else
-    testmansh_run_test_native "$flags" "${TESTMANSH_PROJECT}/${case}"
+    if [[ "$report" != "$BL64_LIB_DEFAULT" ]]; then
+      testmansh_run_test_native "$flags" "${TESTMANSH_PROJECT}/${case}" >"$report"
+    else
+      testmansh_run_test_native "$flags" "${TESTMANSH_PROJECT}/${case}"
+    fi
   fi
 }
 
@@ -271,7 +299,7 @@ function testmansh_check_requirements() {
 
 function testmansh_help() {
   bl64_msg_show_usage \
-    '<-b|-t|-q|-l|-i|k> [-p Project] [-c Case] [-e Image] [-r Registry] [-s BatsCore] [-u ShellCheck] [-f EnvFile] [-m Format] [-g] [-h]' \
+    '<-b|-t|-q|-l|-i|k> [-p Project] [-c Case] [-e Image] [-r Registry] [-s BatsCore] [-u ShellCheck] [-f EnvFile] [-m Format|-j JUnitFile] [-g] [-h]' \
     'Simple tool for testing Bash scripts with shellcheck and bats-core in either native environment or purpose-build container images.' \
     '
   -b           : Run bats-core tests
@@ -292,6 +320,7 @@ function testmansh_help() {
   -f EnvFile   : Full path to the container environment file. Default: TESTMANSH_PROJECT/test/container.env
   -s BatsCore  : Full path to the bats-core shell script. Alternative: exported shell variable TESTMANSH_CMD_BATS
   -u ShellCheck: Full path to the bats-core shell script. Alternative: exported shell variable TESTMANSH_CMD_SHELLCHECK
-  -m Format    : Set report format type. Valued values: shellcheck and bats-core dependant
+  -m Format    : Show test results on STDOUT using the Format type. Format: shellcheck and bats-core dependant
+  -j JUnitFile : Save test results in JUnit format to the file JUnitFile. Format: full path
     "
 }
