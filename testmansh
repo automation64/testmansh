@@ -7003,6 +7003,7 @@ function testmansh_run_linter() {
     return 1
   fi
 
+  bl64_msg_show_text "Run shellcheck linter on project: ${TESTMANSH_PROJECT}"
   # shellcheck disable=SC2086
   if [[ "$container" == "$BL64_LIB_VAR_ON" ]]; then
     if [[ "$report" != "$BL64_LIB_DEFAULT" ]]; then
@@ -7022,6 +7023,8 @@ function testmansh_run_linter() {
 function testmansh_run_linter_container() {
   local format="$1"
   local flags="$2"
+
+  bl64_cnt_setup || return $?
 
   shift
   shift
@@ -7080,71 +7083,87 @@ function testmansh_run_test() {
     [[ ! -d ${TESTMANSH_PROJECT}/${case} ]] && case="${case}.bats"
   fi
 
+  bl64_msg_show_text "run bats-core test-cases on project: ${TESTMANSH_PROJECT}"
   if [[ "$container" == "$BL64_LIB_VAR_ON" ]]; then
-    if [[ "$report" != "$BL64_LIB_DEFAULT" ]]; then
-      testmansh_run_test_container "$flags" "${TESTMANSH_CONTAINER64_PROJECT}/${case}" >"$report"
-    else
-      testmansh_run_test_container "$flags" "${TESTMANSH_CONTAINER64_PROJECT}/${case}"
-    fi
+    testmansh_run_test_container "$report" "$flags" "${TESTMANSH_CONTAINER64_PROJECT}/${case}"
   else
-    if [[ "$report" != "$BL64_LIB_DEFAULT" ]]; then
-      testmansh_run_test_native "$flags" "${TESTMANSH_PROJECT}/${case}" >"$report"
-    else
-      testmansh_run_test_native "$flags" "${TESTMANSH_PROJECT}/${case}"
-    fi
+    testmansh_run_test_native "$report" "$flags" "${TESTMANSH_PROJECT}/${case}"
   fi
 }
 
 function testmansh_run_test_native() {
-  local flags="$1"
-  local target="$2"
+  local report="$1"
+  local flags="$2"
+  local target="$3"
 
   bl64_check_command "$TESTMANSH_CMD_BATS" || return $?
   bl64_dbg_app_show_vars 'target' 'flags'
 
   # shellcheck disable=SC2086
-  "$TESTMANSH_CMD_BATS" $flags "$target"
+  if [[ "$report" != "$BL64_LIB_DEFAULT" ]]; then
+    "$TESTMANSH_CMD_BATS" $flags "$target" >"$report"
+  else
+    "$TESTMANSH_CMD_BATS" $flags "$target"
+  fi
 }
 
 function testmansh_run_test_container() {
-  local flags="$1"
-  local target="$2"
+  local report="$1"
+  local flags="$2"
+  local target="$3"
   local container=''
-  local env_file=''
+  local env_file=' '
 
   [[ -n "$TESTMANSH_ENV" && -r "$TESTMANSH_ENV" ]] && env_file="--env-file $TESTMANSH_ENV"
 
   for container in $TESTMANSH_IMAGES_TEST; do
     unset IFS
     bl64_msg_show_task "run test cases on the container image: $container"
-    # shellcheck disable=SC2086
-    bl64_cnt_run_interactive \
-      $env_file \
-      --env TESTMANSH_PROJECT_ROOT \
-      --env TESTMANSH_PROJECT_BIN \
-      --env TESTMANSH_PROJECT_SRC \
-      --env TESTMANSH_PROJECT_LIB \
-      --env TESTMANSH_PROJECT_BUILD \
-      --env TESTMANSH_TEST \
-      --env TESTMANSH_TEST_SAMPLES \
-      --env TESTMANSH_TEST_LIB \
-      --env TESTMANSH_TEST_BATSCORE_SETUP \
-      --env TESTMANSH_CMD_BATS_HELPER_SUPPORT \
-      --env TESTMANSH_CMD_BATS_HELPER_ASSERT \
-      --env TESTMANSH_CMD_BATS_HELPER_FILE \
-      --env BATSLIB_TEMP_PRESERVE_ON_FAILURE \
-      --env BATSLIB_TEMP_PRESERVE \
-      --volume "${TESTMANSH_PROJECT}:${TESTMANSH_CONTAINER64_PROJECT}" \
-      "${TESTMANSH_REGISTRY}/${container}" \
-      $flags \
-      "$target" ||
-      return $?
+    if [[ "$report" != "$BL64_LIB_DEFAULT" ]]; then
+      testmansh_run_test_container_batscore "$container" "$target" "$flags" "$env_file" >"$report" || return $?
+    else
+      testmansh_run_test_container_batscore "$container" "$target" "$flags" "$env_file" || return $?
+    fi
   done
+
+}
+
+function testmansh_run_test_container_batscore() {
+  local container="$1"
+  local target="$2"
+  local flags="$3"
+  local env_file="$4"
+
+  bl64_cnt_setup || return $?
+
+  # shellcheck disable=SC2086
+  bl64_cnt_run_interactive \
+    $env_file \
+    --env TESTMANSH_PROJECT_ROOT \
+    --env TESTMANSH_PROJECT_BIN \
+    --env TESTMANSH_PROJECT_SRC \
+    --env TESTMANSH_PROJECT_LIB \
+    --env TESTMANSH_PROJECT_BUILD \
+    --env TESTMANSH_TEST \
+    --env TESTMANSH_TEST_SAMPLES \
+    --env TESTMANSH_TEST_LIB \
+    --env TESTMANSH_TEST_BATSCORE_SETUP \
+    --env TESTMANSH_CMD_BATS_HELPER_SUPPORT \
+    --env TESTMANSH_CMD_BATS_HELPER_ASSERT \
+    --env TESTMANSH_CMD_BATS_HELPER_FILE \
+    --env BATSLIB_TEMP_PRESERVE_ON_FAILURE \
+    --env BATSLIB_TEMP_PRESERVE \
+    --volume "${TESTMANSH_PROJECT}:${TESTMANSH_CONTAINER64_PROJECT}" \
+    "${TESTMANSH_REGISTRY}/${container}" \
+    $flags \
+    "$target"
 }
 
 function testmansh_open_container() {
   local target='/bin/bash'
   local env_file=''
+
+  bl64_cnt_setup || return $?
 
   [[ -n "$TESTMANSH_ENV" && -r "$TESTMANSH_ENV" ]] && env_file="--env-file $TESTMANSH_ENV"
   bl64_dbg_app_show_vars 'env'
@@ -7197,9 +7216,7 @@ function testmansh_list_linter_scope() {
 function testmansh_setup_globals() {
   local container="$1"
 
-  bl64_cnt_setup || return $?
-
-  TESTMANSH_PROJECT="${TESTMANSH_PROJECT:-${PWD}}"
+  TESTMANSH_PROJECT="${TESTMANSH_PROJECT:-$(pwd)}"
   TESTMANSH_DEFAULT_TEST_PATH="${TESTMANSH_PROJECT}/${TESTMANSH_DEFAULT_TEST_PREFIX}"
   TESTMANSH_DEFAULT_LINT_PATH="${TESTMANSH_PROJECT}/${TESTMANSH_DEFAULT_LINT_PREFIX}"
   TESTMANSH_ENV="${TESTMANSH_ENV:-${TESTMANSH_PROJECT}/test/container.env}"
