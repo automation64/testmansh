@@ -17,7 +17,7 @@ function testmansh_run_linter() {
     bl64_check_directory "$TESTMANSH_DEFAULT_LINT_PATH" 'default path for source code files not found. Please use -c to indicate where cases are.' || return $?
 
     if [[ "$container" == "$BL64_LIB_VAR_ON" ]]; then
-      prefix="/prj/${TESTMANSH_DEFAULT_LINT_PREFIX}/"
+      prefix="/${TESTMANSH_CONTAINER64_PROJECT}/${TESTMANSH_DEFAULT_LINT_PREFIX}/"
     else
       prefix="$TESTMANSH_DEFAULT_LINT_PREFIX/"
     fi
@@ -31,7 +31,7 @@ function testmansh_run_linter() {
   elif [[ -d "${TESTMANSH_PROJECT}/${case}" ]]; then
 
     if [[ "$container" == "$BL64_LIB_VAR_ON" ]]; then
-      prefix="/prj/${case}/"
+      prefix="/${TESTMANSH_CONTAINER64_PROJECT}/${case}/"
     else
       prefix="${case}/"
     fi
@@ -43,7 +43,7 @@ function testmansh_run_linter() {
     )"
   elif [[ -f "${TESTMANSH_PROJECT}/${case}" ]]; then
     if [[ "$container" == "$BL64_LIB_VAR_ON" ]]; then
-      target="/prj/${case}"
+      target="/${TESTMANSH_CONTAINER64_PROJECT}/${case}"
     else
       target="$case"
     fi
@@ -68,7 +68,7 @@ function testmansh_run_linter_container() {
   shift
   # shellcheck disable=SC2086
   bl64_cnt_run_interactive \
-    --volume "${TESTMANSH_PROJECT}:/prj" \
+    --volume "${TESTMANSH_PROJECT}:/${TESTMANSH_CONTAINER64_PROJECT}" \
     "${TESTMANSH_REGISTRY}/${TESTMANSH_IMAGES_LINT}" \
     $flags \
     "$@"
@@ -109,14 +109,14 @@ function testmansh_run_test() {
   fi
 
   if [[ "$case" == 'all' ]]; then
-    case="${TESTMANSH_DEFAULT_TEST_PREFIX}"
     bl64_check_directory "$TESTMANSH_DEFAULT_TEST_PATH" 'default path for test-cases not found. Please use -c to indicate where the code is.' || return $?
+    case="${TESTMANSH_DEFAULT_TEST_PREFIX}"
   else
     [[ ! -d ${TESTMANSH_PROJECT}/${case} ]] && case="${case}.bats"
   fi
 
   if [[ "$container" == "$BL64_LIB_VAR_ON" ]]; then
-    testmansh_run_test_container "$flags" "/test/${case}"
+    testmansh_run_test_container "$flags" "/${TESTMANSH_CONTAINER64_PROJECT}/${case}"
   else
     testmansh_run_test_native "$flags" "${TESTMANSH_PROJECT}/${case}"
   fi
@@ -147,9 +147,10 @@ function testmansh_run_test_container() {
     # shellcheck disable=SC2086
     bl64_cnt_run_interactive \
       $env_file \
-      --env TESTMANSH_BIN \
-      --env TESTMANSH_SRC \
-      --env TESTMANSH_LIB \
+      --env TESTMANSH_PROJECT_BIN \
+      --env TESTMANSH_PROJECT_SRC \
+      --env TESTMANSH_PROJECT_LIB \
+      --env TESTMANSH_PROJECT_BUILD \
       --env TESTMANSH_TEST \
       --env TESTMANSH_TEST_SAMPLES \
       --env TESTMANSH_TEST_LIB \
@@ -159,7 +160,7 @@ function testmansh_run_test_container() {
       --env TESTMANSH_BATS_HELPER_FILE \
       --env BATSLIB_TEMP_PRESERVE_ON_FAILURE \
       --env BATSLIB_TEMP_PRESERVE \
-      --volume "${TESTMANSH_PROJECT}:/test" \
+      --volume "${TESTMANSH_PROJECT}:/${TESTMANSH_CONTAINER64_PROJECT}" \
       "${TESTMANSH_REGISTRY}/${container}" \
       $flags \
       "$target" ||
@@ -177,16 +178,17 @@ function testmansh_open_container() {
   # shellcheck disable=SC2086
   bl64_cnt_run_interactive \
     $env_file \
-    --env TESTMANSH_BIN \
-    --env TESTMANSH_SRC \
-    --env TESTMANSH_LIB \
+    --env TESTMANSH_PROJECT_BIN \
+    --env TESTMANSH_PROJECT_SRC \
+    --env TESTMANSH_PROJECT_LIB \
+    --env TESTMANSH_PROJECT_BUILD \
     --env TESTMANSH_TEST \
     --env TESTMANSH_TEST_SAMPLES \
     --env TESTMANSH_TEST_LIB \
     --env TESTMANSH_TEST_BATSCORE_SETUP \
     --env TESTMANSH_BATS_HELPER_SUPPORT \
     --env TESTMANSH_BATS_HELPER_ASSERT \
-    --env TESTMANSH_BATS_HELPER_FILE \
+    --env TESTMANSH_BATS_HELPER_F \
     --env BATSLIB_TEMP_PRESERVE_ON_FAILURE \
     --env BATSLIB_TEMP_PRESERVE \
     --volume "${TESTMANSH_PROJECT}:/test" \
@@ -218,34 +220,41 @@ function testmansh_list_linter_scope() {
 }
 
 function testmansh_setup_globals() {
+  local container="$1"
+
   bl64_cnt_setup || return $?
 
-  TESTMANSH_CMD_BATS="${TESTMANSH_CMD_BATS:-/usr/local/bin/bats}"
-  TESTMANSH_CMD_SHELLCHECK="${TESTMANSH_CMD_SHELLCHECK:-/usr/bin/shellcheck}"
-  TESTMANSH_REGISTRY="${TESTMANSH_REGISTRY:-ghcr.io/serdigital64}"
-
   TESTMANSH_PROJECT="${TESTMANSH_PROJECT:-${PWD}}"
-
-  TESTMANSH_DEFAULT_TEST_PREFIX='test/batscore'
-  TESTMANSH_DEFAULT_LINT_PREFIX='src'
   TESTMANSH_DEFAULT_TEST_PATH="${TESTMANSH_PROJECT}/${TESTMANSH_DEFAULT_TEST_PREFIX}"
   TESTMANSH_DEFAULT_LINT_PATH="${TESTMANSH_PROJECT}/${TESTMANSH_DEFAULT_LINT_PREFIX}"
+t TESTMANSH_ENV="${TESTMANSH_ENV:-${TESTMANSH_PROJECT}/test/container.env}"
 
-  TESTMANSH_IMAGES_TEST="${TESTMANSH_IMAGES_TEST:-}"
-  TESTMANSH_ENV="${TESTMANSH_ENV:-${TESTMANSH_PROJECT}/test/container.env}"
-
-  if [[ -z "$TESTMANSH_IMAGES_TEST" ]]; then
-    TESTMANSH_IMAGES_TEST=''
-    TESTMANSH_IMAGES_TEST="$TESTMANSH_IMAGES_TEST almalinux-8-bash-test:latest"
-    TESTMANSH_IMAGES_TEST="$TESTMANSH_IMAGES_TEST alpine-3-bash-test:latest"
-    TESTMANSH_IMAGES_TEST="$TESTMANSH_IMAGES_TEST rhel-8-bash-test:latest"
-    TESTMANSH_IMAGES_TEST="$TESTMANSH_IMAGES_TEST centos-7-bash-test:latest centos-8-bash-test:latest centos-9-bash-test:latest"
-    TESTMANSH_IMAGES_TEST="$TESTMANSH_IMAGES_TEST oraclelinux-7-bash-test:latest oraclelinux-8-bash-test:latest"
-    TESTMANSH_IMAGES_TEST="$TESTMANSH_IMAGES_TEST fedora-33-bash-test:latest fedora-34-bash-test:latest fedora-35-bash-test:latest"
-    TESTMANSH_IMAGES_TEST="$TESTMANSH_IMAGES_TEST debian-9-bash-test:latest debian-10-bash-test:latest debian-11-bash-test:latest"
-    TESTMANSH_IMAGES_TEST="$TESTMANSH_IMAGES_TEST ubuntu-20.4-bash-test:latest ubuntu-21.4-bash-test:latest"
+  # Adjust test-case default paths based on container mode flag
+  if [[ "$container" == "$BL64_LIB_VAR_ON" ]]; then
+    TESTMANSH_PROJECT_BIN="${TESTMANSH_CONTAINER64_PROJECT}/bin"
+    TESTMANSH_PROJECT_SRC="${TESTMANSH_CONTAINER64_PROJECT}/src"
+    TESTMANSH_PROJECT_LIB="${TESTMANSH_CONTAINER64_PROJECT}/lib"
+    TESTMANSH_PROJECT_BUILD="${TESTMANSH_CONTAINER64_PROJECT}/build"
+    TESTMANSH_TEST="${TESTMANSH_CONTAINER64_PROJECT}/test"
+    TESTMANSH_TEST_SAMPLES="${TESTMANSH_CONTAINER64_PROJECT}/test/samples"
+    TESTMANSH_TEST_LIB="${TESTMANSH_CONTAINER64_PROJECT}/test/lib"
+    TESTMANSH_TEST_BATSCORE_SETUP="${TESTMANSH_CONTAINER64_PROJECT}/test/lib/batscore-setup.bash"
+    TESTMANSH_CMD_BATS_HELPER_SUPPORT="${TESTMANSH_CONTAINER64_BATS_HELPER_SUPPORT}/load.bash"
+    TESTMANSH_CMD_BATS_HELPER_ASSERT="${TESTMANSH_CONTAINER64_BATS_HELPER_ASSERT}/load.bash"
+    TESTMANSH_CMD_BATS_HELPER_FILE="${TESTMANSH_CONTAINER64_BATS_HELPER_FILE}/load.bash"
+  else
+    TESTMANSH_PROJECT_BIN="${TESTMANSH_PROJECT}/bin"
+    TESTMANSH_PROJECT_SRC="${TESTMANSH_PROJECT}/src"
+    TESTMANSH_PROJECT_LIB="${TESTMANSH_PROJECT}/lib"
+    TESTMANSH_PROJECT_BUILD="${TESTMANSH_PROJECT}/build"
+    TESTMANSH_TEST="${TESTMANSH_PROJECT}/test"
+    TESTMANSH_TEST_SAMPLES="${TESTMANSH_PROJECT}/test/samples"
+    TESTMANSH_TEST_LIB="${TESTMANSH_PROJECT}/test/lib"
+    TESTMANSH_TEST_BATSCORE_SETUP="${TESTMANSH_PROJECT}/test/lib/batscore-setup.bash"
+    TESTMANSH_CMD_BATS_HELPER_SUPPORT="${TESTMANSH_CMD_BATS_HELPER_SUPPORT:-/opt/bats-core/test_helpers/support/load.bash}"
+    TESTMANSH_CMD_BATS_HELPER_ASSERT="${TESTMANSH_CMD_BATS_HELPER_ASSERT:-/opt/bats-core/test_helpers/assert/load.bash}"
+    TESTMANSH_CMD_BATS_HELPER_FILE="${TESTMANSH_CMD_BATS_HELPER_FILE:-/opt/bats-core/test_helpers/file/load.bash}"
   fi
-  TESTMANSH_IMAGES_LINT='alpine-3-shell-lint:latest'
 }
 
 function testmansh_check_requirements() {
