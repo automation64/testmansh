@@ -147,6 +147,7 @@ function testmansh_run_test_container() {
     # shellcheck disable=SC2086
     bl64_cnt_run_interactive \
       $env_file \
+      --env TESTMANSH_PROJECT_ROOT \
       --env TESTMANSH_PROJECT_BIN \
       --env TESTMANSH_PROJECT_SRC \
       --env TESTMANSH_PROJECT_LIB \
@@ -178,6 +179,7 @@ function testmansh_open_container() {
   # shellcheck disable=SC2086
   bl64_cnt_run_interactive \
     $env_file \
+    --env TESTMANSH_PROJECT_ROOT \
     --env TESTMANSH_PROJECT_BIN \
     --env TESTMANSH_PROJECT_SRC \
     --env TESTMANSH_PROJECT_LIB \
@@ -231,6 +233,7 @@ function testmansh_setup_globals() {
 
   # Adjust test-case default paths based on container mode flag
   if [[ "$container" == "$BL64_LIB_VAR_ON" ]]; then
+    TESTMANSH_PROJECT_ROOT="${TESTMANSH_CONTAINER64_PROJECT}"
     TESTMANSH_PROJECT_BIN="${TESTMANSH_CONTAINER64_PROJECT}/bin"
     TESTMANSH_PROJECT_SRC="${TESTMANSH_CONTAINER64_PROJECT}/src"
     TESTMANSH_PROJECT_LIB="${TESTMANSH_CONTAINER64_PROJECT}/lib"
@@ -243,6 +246,7 @@ function testmansh_setup_globals() {
     TESTMANSH_CMD_BATS_HELPER_ASSERT="${TESTMANSH_CONTAINER64_BATS_HELPER_ASSERT}/load.bash"
     TESTMANSH_CMD_BATS_HELPER_FILE="${TESTMANSH_CONTAINER64_BATS_HELPER_FILE}/load.bash"
   else
+    TESTMANSH_PROJECT_ROOT="${TESTMANSH_PROJECT}"
     TESTMANSH_PROJECT_BIN="${TESTMANSH_PROJECT}/bin"
     TESTMANSH_PROJECT_SRC="${TESTMANSH_PROJECT}/src"
     TESTMANSH_PROJECT_LIB="${TESTMANSH_PROJECT}/lib"
