@@ -227,7 +227,7 @@ function testmansh_setup_globals() {
   TESTMANSH_PROJECT="${TESTMANSH_PROJECT:-${PWD}}"
   TESTMANSH_DEFAULT_TEST_PATH="${TESTMANSH_PROJECT}/${TESTMANSH_DEFAULT_TEST_PREFIX}"
   TESTMANSH_DEFAULT_LINT_PATH="${TESTMANSH_PROJECT}/${TESTMANSH_DEFAULT_LINT_PREFIX}"
-t TESTMANSH_ENV="${TESTMANSH_ENV:-${TESTMANSH_PROJECT}/test/container.env}"
+  TESTMANSH_ENV="${TESTMANSH_ENV:-${TESTMANSH_PROJECT}/test/container.env}"
 
   # Adjust test-case default paths based on container mode flag
   if [[ "$container" == "$BL64_LIB_VAR_ON" ]]; then
