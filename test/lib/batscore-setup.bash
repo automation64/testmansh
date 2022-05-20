@@ -4,10 +4,9 @@
 # * Source this file from the first line of the setup() function in the test-case
 #
 
-test_batscore_root='/opt/bats-core/test_helpers'
-. "${test_batscore_root}/assert/load.bash"
-. "${test_batscore_root}/file/load.bash"
-. "${test_batscore_root}/support/load.bash"
+. "$TESTMANSH_CMD_BATS_HELPER_SUPPORT"
+. "$TESTMANSH_CMD_BATS_HELPER_ASSERT"
+. "$TESTMANSH_CMD_BATS_HELPER_FILE"
 
 # Do not overwrite signals already set by bats-core
 # ERR, DEBUG, EXIT
@@ -18,3 +17,5 @@ set +o 'nounset'
 # Do not set/unset: 'keyword', 'noexec'
 
 # (Optional) Add shared settings. Available to all test-cases using this setup routine
+
+export DEVTMSH_TEST_TARGET="${TESTMANSH_PROJECT_BUILD}/testmansh"
