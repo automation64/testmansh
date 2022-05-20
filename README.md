@@ -26,7 +26,7 @@ By default `testmansh` assumes that scripts are organized using the following di
 ```text
 Usage: testmansh <-b|-t|-q|-l|-i|k> [-p Project] [-c Case] [-e Image] [-r Registry] [-s BatsCore] [-u ShellCheck] [-f EnvFile] [-m Format] [-g] [-h]
 
-Run test cases
+Simple tool for testing Bash scripts with shellcheck and bats-core in either native environment or purpose-build container images.
 
 Commands
 
@@ -46,12 +46,12 @@ Flags
 Parameters
 
   -p Project   : Full path to the project location. Alternative: exported shell variable TESTMANSH_PROJECT. Default: current location
-  -c Case      : Test case name. Default: all. Format: path/file (relative to Project)
+  -c Case      : Test case name (for -b) or source code (for -t). Default: all. Format: path/file or path/ (relative to TESTMANSH_PROJECT)
   -e Image     : Image name to use for running the container test (-b) or open (-q). Alternative: exported shell variable TESTMANSH_IMAGES_TEST. Default: predefined list
   -r Registry  : Container registry URL. Alternative: exported shell variable TESTMANSH_REGISTRY
-  -f EnvFile   : Full path to the container environment file. Default: none
+  -f EnvFile   : Full path to the container environment file. Default: TESTMANSH_PROJECT/test/container.env
   -s BatsCore  : Full path to the bats-core shell script. Alternative: exported shell variable TESTMANSH_CMD_BATS
-  -u ShellCheck: Full path to the bats-core shell script. Alternative: exported shell variable TESTMANSH_CMD_BATS
+  -u ShellCheck: Full path to the bats-core shell script. Alternative: exported shell variable TESTMANSH_CMD_SHELLCHECK
   -m Format    : Set report format type. Valued values: shellcheck and bats-core dependant
 ```
 
