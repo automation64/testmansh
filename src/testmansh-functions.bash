@@ -145,7 +145,7 @@ function testmansh_run_test_container() {
     unset IFS
     bl64_msg_show_task "run test cases on the container image: $container"
     # shellcheck disable=SC2086
-    bl64_cnt_run \
+    bl64_cnt_run_interactive \
       $env_file \
       --env TESTMANSH_BIN \
       --env TESTMANSH_SRC \
