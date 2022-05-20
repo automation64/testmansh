@@ -49,6 +49,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Remove tool from project bashlib64 and make stand-alone
 
-[Unreleased]: https://github.com/serdigital64/testmansh/compare/1.3.0...HEAD
+[Unreleased]: https://github.com/serdigital64/testmansh/compare/1.6.0...HEAD
+[1.6.0]: https://github.com/serdigital64/testmansh/compare/1.5.0...1.6.0
+[1.5.0]: https://github.com/serdigital64/testmansh/compare/1.4.0...1.5.0
+[1.4.0]: https://github.com/serdigital64/testmansh/compare/1.3.0...1.4.0
 [1.3.0]: https://github.com/serdigital64/testmansh/compare/1.0.0...1.3.0
 [1.0.0]: https://github.com/serdigital64/testmansh/releases/tag/1.0.0

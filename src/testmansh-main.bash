@@ -55,7 +55,7 @@ while getopts ':tbliokqs:p:c:e:r:f:m:u:gh' testmansh_option; do
   *) testmansh_help && exit 1 ;;
   esac
 done
-testmansh_setup_globals
+testmansh_setup_globals "$testmansh_container"
 testmansh_check_requirements || exit 1
 
 bl64_msg_show_batch_start "$testmansh_command_tag"

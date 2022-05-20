@@ -1,5 +1,5 @@
 setup() {
-  . "$DEVTMSH_TEST_SETUP"
+  . "$TESTMANSH_TEST_BATSCORE_SETUP"
 }
 
 @test "testmansh: -b" {
