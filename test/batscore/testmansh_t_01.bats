@@ -3,7 +3,9 @@ setup() {
 }
 
 @test "testmansh: -t" {
-  run "$DEVTMSH_TEST_TARGET" -t -c "test/samples/simple.bash"
+  command -v shellcheck || skip "no shellcheck found"
+
+  run "$DEVTMSH_TEST_TARGET" -t -c "test/samples/simple.bash" -p "$TESTMANSH_PROJECT_ROOT"
 
   assert_success
 }
