@@ -17,7 +17,7 @@ function testmansh_run_linter() {
     bl64_check_directory "$TESTMANSH_DEFAULT_LINT_PATH" 'default path for source code files not found. Please use -c to indicate where cases are.' || return $?
 
     if [[ "$container" == "$BL64_LIB_VAR_ON" ]]; then
-      prefix="/${TESTMANSH_CONTAINER64_PROJECT}/${TESTMANSH_DEFAULT_LINT_PREFIX}/"
+      prefix="${TESTMANSH_CONTAINER64_PROJECT}/${TESTMANSH_DEFAULT_LINT_PREFIX}/"
     else
       prefix="$TESTMANSH_DEFAULT_LINT_PREFIX/"
     fi
@@ -31,7 +31,7 @@ function testmansh_run_linter() {
   elif [[ -d "${TESTMANSH_PROJECT}/${case}" ]]; then
 
     if [[ "$container" == "$BL64_LIB_VAR_ON" ]]; then
-      prefix="/${TESTMANSH_CONTAINER64_PROJECT}/${case}/"
+      prefix="${TESTMANSH_CONTAINER64_PROJECT}/${case}/"
     else
       prefix="${case}/"
     fi
@@ -43,7 +43,7 @@ function testmansh_run_linter() {
     )"
   elif [[ -f "${TESTMANSH_PROJECT}/${case}" ]]; then
     if [[ "$container" == "$BL64_LIB_VAR_ON" ]]; then
-      target="/${TESTMANSH_CONTAINER64_PROJECT}/${case}"
+      target="${TESTMANSH_CONTAINER64_PROJECT}/${case}"
     else
       target="$case"
     fi
@@ -68,7 +68,7 @@ function testmansh_run_linter_container() {
   shift
   # shellcheck disable=SC2086
   bl64_cnt_run_interactive \
-    --volume "${TESTMANSH_PROJECT}:/${TESTMANSH_CONTAINER64_PROJECT}" \
+    --volume "${TESTMANSH_PROJECT}:${TESTMANSH_CONTAINER64_PROJECT}" \
     "${TESTMANSH_REGISTRY}/${TESTMANSH_IMAGES_LINT}" \
     $flags \
     "$@"
@@ -116,7 +116,7 @@ function testmansh_run_test() {
   fi
 
   if [[ "$container" == "$BL64_LIB_VAR_ON" ]]; then
-    testmansh_run_test_container "$flags" "/${TESTMANSH_CONTAINER64_PROJECT}/${case}"
+    testmansh_run_test_container "$flags" "${TESTMANSH_CONTAINER64_PROJECT}/${case}"
   else
     testmansh_run_test_native "$flags" "${TESTMANSH_PROJECT}/${case}"
   fi
@@ -155,12 +155,12 @@ function testmansh_run_test_container() {
       --env TESTMANSH_TEST_SAMPLES \
       --env TESTMANSH_TEST_LIB \
       --env TESTMANSH_TEST_BATSCORE_SETUP \
-      --env TESTMANSH_BATS_HELPER_SUPPORT \
-      --env TESTMANSH_BATS_HELPER_ASSERT \
-      --env TESTMANSH_BATS_HELPER_FILE \
+      --env TESTMANSH_CMD_BATS_HELPER_SUPPORT \
+      --env TESTMANSH_CMD_BATS_HELPER_ASSERT \
+      --env TESTMANSH_CMD_BATS_HELPER_FILE \
       --env BATSLIB_TEMP_PRESERVE_ON_FAILURE \
       --env BATSLIB_TEMP_PRESERVE \
-      --volume "${TESTMANSH_PROJECT}:/${TESTMANSH_CONTAINER64_PROJECT}" \
+      --volume "${TESTMANSH_PROJECT}:${TESTMANSH_CONTAINER64_PROJECT}" \
       "${TESTMANSH_REGISTRY}/${container}" \
       $flags \
       "$target" ||
@@ -186,12 +186,12 @@ function testmansh_open_container() {
     --env TESTMANSH_TEST_SAMPLES \
     --env TESTMANSH_TEST_LIB \
     --env TESTMANSH_TEST_BATSCORE_SETUP \
-    --env TESTMANSH_BATS_HELPER_SUPPORT \
-    --env TESTMANSH_BATS_HELPER_ASSERT \
-    --env TESTMANSH_BATS_HELPER_F \
+    --env TESTMANSH_CMD_BATS_HELPER_SUPPORT \
+    --env TESTMANSH_CMD_BATS_HELPER_ASSERT \
+    --env TESTMANSH_CMD_BATS_HELPER_F \
     --env BATSLIB_TEMP_PRESERVE_ON_FAILURE \
     --env BATSLIB_TEMP_PRESERVE \
-    --volume "${TESTMANSH_PROJECT}:/test" \
+    --volume "${TESTMANSH_PROJECT}:${TESTMANSH_CONTAINER64_PROJECT}" \
     --entrypoint "$target" \
     "${TESTMANSH_REGISTRY}/${TESTMANSH_IMAGES_TEST}"
 }
