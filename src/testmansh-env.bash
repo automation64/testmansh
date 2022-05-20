@@ -32,6 +32,7 @@ export TESTMANSH_CONTAINER64_BATS_HELPER_ASSERT='/opt/bats-core/test_helper/bats
 export TESTMANSH_CONTAINER64_BATS_HELPER_FILE='/opt/bats-core/test_helper/bats-file'
 
 # Default paths for using in test-cases. Path is automatically adjusted for container run
+export TESTMANSH_PROJECT_ROOT=''
 export TESTMANSH_PROJECT_BIN='bin'
 export TESTMANSH_PROJECT_SRC='src'
 export TESTMANSH_PROJECT_LIB='lib'
