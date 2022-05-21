@@ -101,8 +101,10 @@ testmansh -t -o
 - OracleLinux7
 - OracleLinux8
 - RedHatLinux8
+- RockyLinux8
 - Ubuntu20
 - Ubuntu21
+- Ubuntu22
 
 ### Requirements
 
