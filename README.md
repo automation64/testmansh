@@ -24,7 +24,7 @@ By default `testmansh` assumes that scripts are organized using the following di
 ## Usage
 
 ```text
-Usage: testmansh <-b|-t|-q|-l|-i|k> [-p Project] [-c Case] [-e Image] [-r Registry] [-s BatsCore] [-u ShellCheck] [-f EnvFile] [-m Format] [-g] [-h]
+Usage: testmansh <-b|-t|-q|-l|-i|k> [-p Project] [-c Case] [-e Image] [-r Registry] [-s BatsCore] [-u ShellCheck] [-f EnvFile] [-m Format|-j JUnitFile] [-g] [-h]
 
 Simple tool for testing Bash scripts with shellcheck and bats-core in either native environment or purpose-build container images.
 
@@ -36,13 +36,13 @@ Commands
   -l           : List bats-core test cases
   -i           : List bats-core container images
   -k           : List shellcheck targets
-
+ 
 Flags
 
   -g           : Enable debug mode
   -o           : Enable container mode (for -b and -t)
   -h           : Show Help
-
+ 
 Parameters
 
   -p Project   : Full path to the project location. Alternative: exported shell variable TESTMANSH_PROJECT. Default: current location
@@ -52,7 +52,8 @@ Parameters
   -f EnvFile   : Full path to the container environment file. Default: TESTMANSH_PROJECT/test/container.env
   -s BatsCore  : Full path to the bats-core shell script. Alternative: exported shell variable TESTMANSH_CMD_BATS
   -u ShellCheck: Full path to the bats-core shell script. Alternative: exported shell variable TESTMANSH_CMD_SHELLCHECK
-  -m Format    : Set report format type. Valued values: shellcheck and bats-core dependant
+  -m Format    : Show test results on STDOUT using the Format type. Format: shellcheck and bats-core dependant
+  -j JUnitFile : Save test results in JUnit format to the file JUnitFile. Format: full path
 ```
 
 ### Run bats-core test-cases in container images
@@ -101,8 +102,10 @@ testmansh -t -o
 - OracleLinux7
 - OracleLinux8
 - RedHatLinux8
+- RockyLinux8
 - Ubuntu20
 - Ubuntu21
+- Ubuntu22
 
 ### Requirements
 
