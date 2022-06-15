@@ -317,8 +317,32 @@ function testmansh_check_requirements() {
 function testmansh_help() {
   bl64_msg_show_usage \
     '<-b|-t|-q|-l|-i|k> [-p Project] [-c Case] [-e Image] [-r Registry] [-s BatsCore] [-u ShellCheck] [-f EnvFile] [-m Format|-j JUnitFile] [-g] [-h]' \
-    'Simple tool for testing Bash scripts in native environment or purpose-build container images.' \
-    '
+    'Simple tool for testing Bash scripts in native environment or purpose-build container images.
+
+By default testmansh assumes that scripts are organized using the following directory structure:
+
+  - project_path/: project base path
+  - project_path/src/: bash scripts
+  - project_path/test/: test-cases repository
+  - project_path/test/batscore/: test cases in bats-core format
+  - project_path/test/samples/: test samples
+  - project_path/test/lib/: shared code for test cases
+
+The tool also sets and exports shell environment variables that can be used directly in test cases. The content is automatically adjusted to native or container execution:
+
+  - TESTMANSH_PROJECT_ROOT: project base path (project/)
+  - TESTMANSH_PROJECT_BIN: dev time scripts (project/bin)
+  - TESTMANSH_PROJECT_SRC: source code (project/src)
+  - TESTMANSH_PROJECT_LIB: dev time libs (project/lib)
+  - TESTMANSH_PROJECT_BUILD: location for dev,test builds (project/build)
+  - TESTMANSH_TEST: tests base path (project/test)
+  - TESTMANSH_TEST_SAMPLES: test samples (project/test/samples)
+  - TESTMANSH_TEST_LIB: test shared libs (project/test/lib)
+  - TESTMANSH_TEST_BATSCORE_SETUP: batscore setup script (project/test/lib/batscore-setup.bash)
+  - TESTMANSH_CMD_BATS_HELPER_SUPPORT: full path to the bats-core support helper
+  - TESTMANSH_CMD_BATS_HELPER_ASSERT: full path to the bats-core assert helper
+  - TESTMANSH_CMD_BATS_HELPER_FILE: full path to the bats-core file helper' \
+  '
   -b           : Run bats-core tests
   -t           : Run shellcheck linter
   -q           : Open bats-core container
