@@ -114,6 +114,7 @@ testmansh -t -o
 - Fedora33
 - Fedora34
 - Fedora35
+- Fedora36
 - MacOS12
   - Requires Bash4 (e.g. homebrew install bash)
 - OracleLinux7
