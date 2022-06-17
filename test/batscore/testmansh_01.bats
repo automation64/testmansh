@@ -3,13 +3,12 @@ setup() {
 }
 
 @test "testmansh: no args" {
-  run "$DEVTMSH_TEST_TARGET"
+  run "$DEVTMSH_BUILD_TARGET"
 
   assert_failure
 }
 
 @test "testmansh: -h" {
-  run "$DEVTMSH_TEST_TARGET" -h
-
+  run "$DEVTMSH_BUILD_TARGET" -h
   assert_success
 }
