@@ -17,5 +17,5 @@ set +o 'nounset'
 # Do not set/unset: 'keyword', 'noexec'
 
 # (Optional) Add shared settings. Available to all test-cases using this setup routine
-
-export DEVTMSH_TEST_TARGET="${TESTMANSH_PROJECT_BUILD}/testmansh"
+export DEVTMSH_ROOT="$TESTMANSH_PROJECT_ROOT"
+. "${TESTMANSH_PROJECT_ROOT}/.env"
