@@ -3,7 +3,7 @@ setup() {
 }
 
 @test "testmansh: -i" {
-  run "$DEVTMSH_TEST_TARGET" -i -p "$TESTMANSH_PROJECT_ROOT"
+  run "$DEVTMSH_BUILD_TARGET" -i -p "$TESTMANSH_PROJECT_ROOT"
 
   assert_success
 }
