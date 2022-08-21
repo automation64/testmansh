@@ -221,7 +221,7 @@ function testmansh_open_container() {
   bl64_cnt_setup || return $?
 
   [[ -n "$TESTMANSH_ENV" && -r "$TESTMANSH_ENV" ]] && env_file="--env-file $TESTMANSH_ENV"
-  bl64_dbg_app_show_vars 'env'
+  bl64_dbg_app_show_vars 'env_file'
 
   # shellcheck disable=SC2086
   bl64_cnt_run_interactive \
@@ -268,13 +268,17 @@ function testmansh_list_linter_scope() {
   bl64_fs_find_files "$TESTMANSH_DEFAULT_LINT_PREFIX"
 }
 
-function testmansh_setup_globals() {
+function testmansh_initialize() {
   local container="$1"
+
+  [[ -z "$testmansh_command" ]] && testmansh_help && return 1
 
   TESTMANSH_PROJECT="${TESTMANSH_PROJECT:-$(pwd)}"
   TESTMANSH_DEFAULT_TEST_PATH="${TESTMANSH_PROJECT}/${TESTMANSH_DEFAULT_TEST_PREFIX}"
   TESTMANSH_DEFAULT_LINT_PATH="${TESTMANSH_PROJECT}/${TESTMANSH_DEFAULT_LINT_PREFIX}"
   TESTMANSH_ENV="${TESTMANSH_ENV:-${TESTMANSH_PROJECT}/test/container.env}"
+
+  bl64_check_directory "$TESTMANSH_PROJECT" || return $?
 
   # Adjust test-case default paths based on container mode flag
   if [[ "$container" == "$BL64_LIB_VAR_ON" ]]; then
@@ -304,14 +308,7 @@ function testmansh_setup_globals() {
     TESTMANSH_CMD_BATS_HELPER_ASSERT="${TESTMANSH_CMD_BATS_HELPER_ASSERT:-/opt/bats-core/test_helpers/assert/load.bash}"
     TESTMANSH_CMD_BATS_HELPER_FILE="${TESTMANSH_CMD_BATS_HELPER_FILE:-/opt/bats-core/test_helpers/file/load.bash}"
   fi
-}
 
-function testmansh_check_requirements() {
-  [[ -z "$testmansh_command" ]] && testmansh_help && return 1
-
-  bl64_check_directory "$TESTMANSH_PROJECT" || return $?
-
-  return 0
 }
 
 function testmansh_help() {
