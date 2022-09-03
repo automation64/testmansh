@@ -103,27 +103,7 @@ testmansh -t -o
 
 ### Compatibility
 
-- AlmaLinux8
-- Alpine3
-- CentOS7
-- CentOS8
-- CentOS9
-- Debian9
-- Debian10
-- Debian11
-- Fedora33
-- Fedora34
-- Fedora35
-- Fedora36
-- MacOS12
-  - Requires Bash4 (e.g. homebrew install bash)
-- OracleLinux7
-- OracleLinux8
-- RedHatLinux8
-- RockyLinux8
-- Ubuntu20
-- Ubuntu21
-- Ubuntu22
+Same as [bashlib64](https://github.com/serdigital64/bashlib64#os-compatibility)
 
 ### Requirements
 
