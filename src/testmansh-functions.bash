@@ -22,7 +22,7 @@ function testmansh_run_linter() {
   if [[ "$case" == 'all' ]]; then
     bl64_check_directory "$TESTMANSH_DEFAULT_LINT_PATH" 'default path for source code files not found. Please use -c to indicate where cases are.' || return $?
 
-    if [[ "$container" == "$BL64_LIB_VAR_ON" ]]; then
+    if [[ "$container" == "$BL64_VAR_ON" ]]; then
       prefix="${TESTMANSH_CONTAINER64_PROJECT}/${TESTMANSH_DEFAULT_LINT_PREFIX}/"
     else
       prefix="$TESTMANSH_DEFAULT_LINT_PREFIX/"
@@ -36,7 +36,7 @@ function testmansh_run_linter() {
 
   elif [[ -d "${TESTMANSH_PROJECT}/${case}" ]]; then
 
-    if [[ "$container" == "$BL64_LIB_VAR_ON" ]]; then
+    if [[ "$container" == "$BL64_VAR_ON" ]]; then
       prefix="${TESTMANSH_CONTAINER64_PROJECT}/${case}/"
     else
       prefix="${case}/"
@@ -48,7 +48,7 @@ function testmansh_run_linter() {
       bl64_fs_find_files | bl64_fmt_list_to_string "$BL64_VAR_DEFAULT" "${prefix}"
     )"
   elif [[ -f "${TESTMANSH_PROJECT}/${case}" ]]; then
-    if [[ "$container" == "$BL64_LIB_VAR_ON" ]]; then
+    if [[ "$container" == "$BL64_VAR_ON" ]]; then
       target="${TESTMANSH_CONTAINER64_PROJECT}/${case}"
     else
       target="$case"
@@ -60,7 +60,7 @@ function testmansh_run_linter() {
 
   bl64_msg_show_text "Run shellcheck linter on project: ${TESTMANSH_PROJECT}"
   # shellcheck disable=SC2086
-  if [[ "$container" == "$BL64_LIB_VAR_ON" ]]; then
+  if [[ "$container" == "$BL64_VAR_ON" ]]; then
     if [[ "$report" != "$BL64_VAR_DEFAULT" ]]; then
       testmansh_run_linter_container "$format" "$flags" $target >"$report"
     else
@@ -139,7 +139,7 @@ function testmansh_run_test() {
   fi
 
   bl64_msg_show_text "run bats-core test-cases on project: ${TESTMANSH_PROJECT}"
-  if [[ "$container" == "$BL64_LIB_VAR_ON" ]]; then
+  if [[ "$container" == "$BL64_VAR_ON" ]]; then
     testmansh_run_test_container "$report" "$flags" "${TESTMANSH_CONTAINER64_PROJECT}/${case}"
   else
     testmansh_run_test_native "$report" "$flags" "${TESTMANSH_PROJECT}/${case}"
@@ -281,7 +281,7 @@ function testmansh_initialize() {
   bl64_check_directory "$TESTMANSH_PROJECT" || return $?
 
   # Adjust test-case default paths based on container mode flag
-  if [[ "$container" == "$BL64_LIB_VAR_ON" ]]; then
+  if [[ "$container" == "$BL64_VAR_ON" ]]; then
     TESTMANSH_PROJECT_ROOT="${TESTMANSH_CONTAINER64_PROJECT}"
     TESTMANSH_PROJECT_BIN="${TESTMANSH_CONTAINER64_PROJECT}/bin"
     TESTMANSH_PROJECT_SRC="${TESTMANSH_CONTAINER64_PROJECT}/src"
