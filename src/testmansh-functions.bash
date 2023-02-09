@@ -12,10 +12,10 @@ function testmansh_run_linter() {
   local prefix=''
 
   # Set report output and format
-  if [[ "$report" != "$BL64_LIB_DEFAULT" ]]; then
+  if [[ "$report" != "$BL64_VAR_DEFAULT" ]]; then
     flags="${flags} --format checkstyle"
   else
-    [[ "$format" == "$BL64_LIB_DEFAULT" ]] && format='gcc'
+    [[ "$format" == "$BL64_VAR_DEFAULT" ]] && format='gcc'
     flags="${flags} --format $format"
   fi
 
@@ -31,7 +31,7 @@ function testmansh_run_linter() {
     # shellcheck disable=SC2164
     target="$(
       cd "$TESTMANSH_DEFAULT_LINT_PATH"
-      bl64_fs_find_files | bl64_fmt_list_to_string "$BL64_LIB_DEFAULT" "${prefix}"
+      bl64_fs_find_files | bl64_fmt_list_to_string "$BL64_VAR_DEFAULT" "${prefix}"
     )"
 
   elif [[ -d "${TESTMANSH_PROJECT}/${case}" ]]; then
@@ -45,7 +45,7 @@ function testmansh_run_linter() {
     # shellcheck disable=SC2164
     target="$(
       cd "${TESTMANSH_PROJECT}/${case}"
-      bl64_fs_find_files | bl64_fmt_list_to_string "$BL64_LIB_DEFAULT" "${prefix}"
+      bl64_fs_find_files | bl64_fmt_list_to_string "$BL64_VAR_DEFAULT" "${prefix}"
     )"
   elif [[ -f "${TESTMANSH_PROJECT}/${case}" ]]; then
     if [[ "$container" == "$BL64_LIB_VAR_ON" ]]; then
@@ -61,13 +61,13 @@ function testmansh_run_linter() {
   bl64_msg_show_text "Run shellcheck linter on project: ${TESTMANSH_PROJECT}"
   # shellcheck disable=SC2086
   if [[ "$container" == "$BL64_LIB_VAR_ON" ]]; then
-    if [[ "$report" != "$BL64_LIB_DEFAULT" ]]; then
+    if [[ "$report" != "$BL64_VAR_DEFAULT" ]]; then
       testmansh_run_linter_container "$format" "$flags" $target >"$report"
     else
       testmansh_run_linter_container "$format" "$flags" $target
     fi
   else
-    if [[ "$report" != "$BL64_LIB_DEFAULT" ]]; then
+    if [[ "$report" != "$BL64_VAR_DEFAULT" ]]; then
       testmansh_run_linter_native "$format" "$flags" $target >"$report"
     else
       testmansh_run_linter_native "$format" "$flags" $target
@@ -115,10 +115,10 @@ function testmansh_run_test() {
   local flags='--recursive'
 
   # Set report output and format
-  if [[ "$report" != "$BL64_LIB_DEFAULT" ]]; then
+  if [[ "$report" != "$BL64_VAR_DEFAULT" ]]; then
     flags="${flags} --formatter junit"
   else
-    [[ "$format" == "$BL64_LIB_DEFAULT" ]] && format='tap'
+    [[ "$format" == "$BL64_VAR_DEFAULT" ]] && format='tap'
     flags="${flags} --formatter $format"
   fi
 
@@ -155,7 +155,7 @@ function testmansh_run_test_native() {
   bl64_dbg_app_show_vars 'target' 'flags'
 
   # shellcheck disable=SC2086
-  if [[ "$report" != "$BL64_LIB_DEFAULT" ]]; then
+  if [[ "$report" != "$BL64_VAR_DEFAULT" ]]; then
     "$TESTMANSH_CMD_BATS" $flags "$target" >"$report"
   else
     "$TESTMANSH_CMD_BATS" $flags "$target"
@@ -174,7 +174,7 @@ function testmansh_run_test_container() {
   for container in $TESTMANSH_IMAGES_TEST; do
     unset IFS
     bl64_msg_show_task "run test cases on the container image: $container"
-    if [[ "$report" != "$BL64_LIB_DEFAULT" ]]; then
+    if [[ "$report" != "$BL64_VAR_DEFAULT" ]]; then
       testmansh_run_test_container_batscore "$container" "$target" "$flags" "$env_file" >"$report" || return $?
     else
       testmansh_run_test_container_batscore "$container" "$target" "$flags" "$env_file" || return $?

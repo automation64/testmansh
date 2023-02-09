@@ -9,8 +9,8 @@ bl64_msg_show_text "Build app (${DEVTMSH_BUILD_TARGET})"
 # shellcheck disable=SC2154
 bl64_fs_merge_files \
   '0755' \
-  "$BL64_LIB_DEFAULT" \
-  "$BL64_LIB_DEFAULT" \
+  "$BL64_VAR_DEFAULT" \
+  "$BL64_VAR_DEFAULT" \
   "$BL64_LIB_VAR_ON" \
   "$DEVTMSH_BUILD_TARGET" \
   "${DEVTMSH_SRC}/${DEVTMSH_APP_NAME}-header.bash" \

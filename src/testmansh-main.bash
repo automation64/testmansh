@@ -9,9 +9,9 @@ declare testmansh_command_tag=''
 declare testmansh_option=''
 declare testmansh_case='all'
 declare testmansh_debug="$BL64_LIB_VAR_OFF"
-declare testmansh_format="$BL64_LIB_DEFAULT"
+declare testmansh_format="$BL64_VAR_DEFAULT"
 declare testmansh_container="$BL64_LIB_VAR_OFF"
-declare testmansh_report="$BL64_LIB_DEFAULT"
+declare testmansh_report="$BL64_VAR_DEFAULT"
 
 (($# == 0)) && testmansh_help && exit 1
 while getopts ':tbliokqs:p:c:e:r:f:m:u:gj:h' testmansh_option; do
