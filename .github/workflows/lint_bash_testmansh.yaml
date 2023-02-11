@@ -3,18 +3,17 @@ name: "Lint / Bash / TestManSH"
 on:
   push:
     branches:
+      - "feature/*"
       - "develop"
+      - "main"
 
 jobs:
-  lint_bash_testmansh:
+  lint-bash-testmansh:
     runs-on: "ubuntu-latest"
     steps:
 
       - name: "Check out repository code"
         uses: "actions/checkout@main"
-
-      - name: "Download testmansh"
-        run: "curl -O https://raw.githubusercontent.com/serdigital64/testmansh/main/testmansh"
 
       - name: "Prepare build environment"
         run: "./bin/devtmsh-lib"
@@ -23,4 +22,4 @@ jobs:
         run: "./bin/devtmsh-build"
 
       - name: "Run linter"
-        run: "bash testmansh -t -c build/testmansh"
+        run: "./lib/testmansh -t -c build/testmansh"
