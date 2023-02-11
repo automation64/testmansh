@@ -10,28 +10,32 @@
 
   ```shell
   git clone https://github.com/serdigital64/testmansh
+  git flow init
   ```
 
-- Adjust environment variables to reflect your configuration:
+- Adjust environment variables to match your configuration:
+
+  - Copy environment definition files from templates:
 
   ```shell
-  # Copy environment definition files from templates:
   cp dot.local .local
   cp dot.secrets .secrets
-  # Review and update content for both files
   ```
 
-- Initialize dev environment variables
+  - Review and update content for both files to match your environment
+
+- Download dev support scripts
 
 ```shell
-source bin/devtmsh-set
+./bin/devtmsh-lib
 ```
-
-- Download the latest version of [BashLib64](https://github.com/serdigital64/bashlib64) to: `lib/`
 
 ## Update source code
 
 - Add/Edit source code in: `src/`
+
+## Build
+
 - Build the `testmansh` script:
 
 ```shell

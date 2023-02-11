@@ -12,17 +12,17 @@ function testmansh_run_linter() {
   local prefix=''
 
   # Set report output and format
-  if [[ "$report" != "$BL64_LIB_DEFAULT" ]]; then
+  if [[ "$report" != "$BL64_VAR_DEFAULT" ]]; then
     flags="${flags} --format checkstyle"
   else
-    [[ "$format" == "$BL64_LIB_DEFAULT" ]] && format='gcc'
+    [[ "$format" == "$BL64_VAR_DEFAULT" ]] && format='gcc'
     flags="${flags} --format $format"
   fi
 
   if [[ "$case" == 'all' ]]; then
     bl64_check_directory "$TESTMANSH_DEFAULT_LINT_PATH" 'default path for source code files not found. Please use -c to indicate where cases are.' || return $?
 
-    if [[ "$container" == "$BL64_LIB_VAR_ON" ]]; then
+    if [[ "$container" == "$BL64_VAR_ON" ]]; then
       prefix="${TESTMANSH_CONTAINER64_PROJECT}/${TESTMANSH_DEFAULT_LINT_PREFIX}/"
     else
       prefix="$TESTMANSH_DEFAULT_LINT_PREFIX/"
@@ -31,12 +31,12 @@ function testmansh_run_linter() {
     # shellcheck disable=SC2164
     target="$(
       cd "$TESTMANSH_DEFAULT_LINT_PATH"
-      bl64_fs_find_files | bl64_fmt_list_to_string "$BL64_LIB_DEFAULT" "${prefix}"
+      bl64_fs_find_files | bl64_fmt_list_to_string "$BL64_VAR_DEFAULT" "${prefix}"
     )"
 
   elif [[ -d "${TESTMANSH_PROJECT}/${case}" ]]; then
 
-    if [[ "$container" == "$BL64_LIB_VAR_ON" ]]; then
+    if [[ "$container" == "$BL64_VAR_ON" ]]; then
       prefix="${TESTMANSH_CONTAINER64_PROJECT}/${case}/"
     else
       prefix="${case}/"
@@ -45,10 +45,10 @@ function testmansh_run_linter() {
     # shellcheck disable=SC2164
     target="$(
       cd "${TESTMANSH_PROJECT}/${case}"
-      bl64_fs_find_files | bl64_fmt_list_to_string "$BL64_LIB_DEFAULT" "${prefix}"
+      bl64_fs_find_files | bl64_fmt_list_to_string "$BL64_VAR_DEFAULT" "${prefix}"
     )"
   elif [[ -f "${TESTMANSH_PROJECT}/${case}" ]]; then
-    if [[ "$container" == "$BL64_LIB_VAR_ON" ]]; then
+    if [[ "$container" == "$BL64_VAR_ON" ]]; then
       target="${TESTMANSH_CONTAINER64_PROJECT}/${case}"
     else
       target="$case"
@@ -60,14 +60,14 @@ function testmansh_run_linter() {
 
   bl64_msg_show_text "Run shellcheck linter on project: ${TESTMANSH_PROJECT}"
   # shellcheck disable=SC2086
-  if [[ "$container" == "$BL64_LIB_VAR_ON" ]]; then
-    if [[ "$report" != "$BL64_LIB_DEFAULT" ]]; then
+  if [[ "$container" == "$BL64_VAR_ON" ]]; then
+    if [[ "$report" != "$BL64_VAR_DEFAULT" ]]; then
       testmansh_run_linter_container "$format" "$flags" $target >"$report"
     else
       testmansh_run_linter_container "$format" "$flags" $target
     fi
   else
-    if [[ "$report" != "$BL64_LIB_DEFAULT" ]]; then
+    if [[ "$report" != "$BL64_VAR_DEFAULT" ]]; then
       testmansh_run_linter_native "$format" "$flags" $target >"$report"
     else
       testmansh_run_linter_native "$format" "$flags" $target
@@ -115,10 +115,10 @@ function testmansh_run_test() {
   local flags='--recursive'
 
   # Set report output and format
-  if [[ "$report" != "$BL64_LIB_DEFAULT" ]]; then
+  if [[ "$report" != "$BL64_VAR_DEFAULT" ]]; then
     flags="${flags} --formatter junit"
   else
-    [[ "$format" == "$BL64_LIB_DEFAULT" ]] && format='tap'
+    [[ "$format" == "$BL64_VAR_DEFAULT" ]] && format='tap'
     flags="${flags} --formatter $format"
   fi
 
@@ -139,7 +139,7 @@ function testmansh_run_test() {
   fi
 
   bl64_msg_show_text "run bats-core test-cases on project: ${TESTMANSH_PROJECT}"
-  if [[ "$container" == "$BL64_LIB_VAR_ON" ]]; then
+  if [[ "$container" == "$BL64_VAR_ON" ]]; then
     testmansh_run_test_container "$report" "$flags" "${TESTMANSH_CONTAINER64_PROJECT}/${case}"
   else
     testmansh_run_test_native "$report" "$flags" "${TESTMANSH_PROJECT}/${case}"
@@ -155,7 +155,7 @@ function testmansh_run_test_native() {
   bl64_dbg_app_show_vars 'target' 'flags'
 
   # shellcheck disable=SC2086
-  if [[ "$report" != "$BL64_LIB_DEFAULT" ]]; then
+  if [[ "$report" != "$BL64_VAR_DEFAULT" ]]; then
     "$TESTMANSH_CMD_BATS" $flags "$target" >"$report"
   else
     "$TESTMANSH_CMD_BATS" $flags "$target"
@@ -174,7 +174,7 @@ function testmansh_run_test_container() {
   for container in $TESTMANSH_IMAGES_TEST; do
     unset IFS
     bl64_msg_show_task "run test cases on the container image: $container"
-    if [[ "$report" != "$BL64_LIB_DEFAULT" ]]; then
+    if [[ "$report" != "$BL64_VAR_DEFAULT" ]]; then
       testmansh_run_test_container_batscore "$container" "$target" "$flags" "$env_file" >"$report" || return $?
     else
       testmansh_run_test_container_batscore "$container" "$target" "$flags" "$env_file" || return $?
@@ -237,7 +237,7 @@ function testmansh_open_container() {
     --env TESTMANSH_TEST_BATSCORE_SETUP \
     --env TESTMANSH_CMD_BATS_HELPER_SUPPORT \
     --env TESTMANSH_CMD_BATS_HELPER_ASSERT \
-    --env TESTMANSH_CMD_BATS_HELPER_F \
+    --env TESTMANSH_CMD_BATS_HELPER_FILE \
     --env BATSLIB_TEMP_PRESERVE_ON_FAILURE \
     --env BATSLIB_TEMP_PRESERVE \
     --volume "${TESTMANSH_PROJECT}:${TESTMANSH_CONTAINER64_PROJECT}" \
@@ -269,9 +269,16 @@ function testmansh_list_linter_scope() {
 }
 
 function testmansh_initialize() {
-  local container="$1"
+  local debug="$1"
+  local verbose="$2"
+  local command="$3"
+  local container="$4"
 
-  [[ -z "$testmansh_command" ]] && testmansh_help && return 1
+  [[ -z "$command" ]] && testmansh_help && return 1
+
+  bl64_dbg_set_level "$debug" &&
+    bl64_msg_set_level "$verbose" ||
+    return $?
 
   TESTMANSH_PROJECT="${TESTMANSH_PROJECT:-$(pwd)}"
   TESTMANSH_DEFAULT_TEST_PATH="${TESTMANSH_PROJECT}/${TESTMANSH_DEFAULT_TEST_PREFIX}"
@@ -281,7 +288,7 @@ function testmansh_initialize() {
   bl64_check_directory "$TESTMANSH_PROJECT" || return $?
 
   # Adjust test-case default paths based on container mode flag
-  if [[ "$container" == "$BL64_LIB_VAR_ON" ]]; then
+  if [[ "$container" == "$BL64_VAR_ON" ]]; then
     TESTMANSH_PROJECT_ROOT="${TESTMANSH_CONTAINER64_PROJECT}"
     TESTMANSH_PROJECT_BIN="${TESTMANSH_CONTAINER64_PROJECT}/bin"
     TESTMANSH_PROJECT_SRC="${TESTMANSH_CONTAINER64_PROJECT}/src"
@@ -308,12 +315,24 @@ function testmansh_initialize() {
     TESTMANSH_CMD_BATS_HELPER_ASSERT="${TESTMANSH_CMD_BATS_HELPER_ASSERT:-/opt/bats-core/test_helpers/assert/load.bash}"
     TESTMANSH_CMD_BATS_HELPER_FILE="${TESTMANSH_CMD_BATS_HELPER_FILE:-/opt/bats-core/test_helpers/file/load.bash}"
   fi
+  bl64_dbg_app_show_info "[TESTMANSH_PROJECT_ROOT=${TESTMANSH_PROJECT_ROOT}]"
+  bl64_dbg_app_show_info "[TESTMANSH_PROJECT_BIN=${TESTMANSH_PROJECT_BIN}]"
+  bl64_dbg_app_show_info "[TESTMANSH_PROJECT_SRC=${TESTMANSH_PROJECT_SRC}]"
+  bl64_dbg_app_show_info "[TESTMANSH_PROJECT_LIB=${TESTMANSH_PROJECT_LIB}]"
+  bl64_dbg_app_show_info "[TESTMANSH_PROJECT_BUILD=${TESTMANSH_PROJECT_BUILD}]"
+  bl64_dbg_app_show_info "[TESTMANSH_TEST=${TESTMANSH_TEST}]"
+  bl64_dbg_app_show_info "[TESTMANSH_TEST_SAMPLES=${TESTMANSH_TEST_SAMPLES}]"
+  bl64_dbg_app_show_info "[TESTMANSH_TEST_LIB=${TESTMANSH_TEST_LIB}]"
+  bl64_dbg_app_show_info "[TESTMANSH_TEST_BATSCORE_SETUP=${TESTMANSH_TEST_BATSCORE_SETUP}]"
+  bl64_dbg_app_show_info "[TESTMANSH_CMD_BATS_HELPER_SUPPORT=${TESTMANSH_CMD_BATS_HELPER_SUPPORT}]"
+  bl64_dbg_app_show_info "[TESTMANSH_CMD_BATS_HELPER_ASSERT=${TESTMANSH_CMD_BATS_HELPER_ASSERT}]"
+  bl64_dbg_app_show_info "[TESTMANSH_CMD_BATS_HELPER_FILE=${TESTMANSH_CMD_BATS_HELPER_FILE}]"
 
 }
 
 function testmansh_help() {
   bl64_msg_show_usage \
-    '<-b|-t|-q|-l|-i|k> [-p Project] [-c Case] [-e Image] [-r Registry] [-s BatsCore] [-u ShellCheck] [-f EnvFile] [-m Format|-j JUnitFile] [-g] [-h]' \
+    '<-b|-t|-q|-l|-i|k> [-p Project] [-c Case] [-e Image] [-r Registry] [-s BatsCore] [-u ShellCheck] [-f EnvFile] [-m Format|-j JUnitFile] [-g] [-V Verbose] [-D Debug] [-h]' \
     'Simple tool for testing Bash scripts in native environment or purpose-build container images.
 
 By default testmansh assumes that scripts are organized using the following directory structure:
@@ -347,7 +366,7 @@ The tool also sets and exports shell environment variables that can be used dire
   -i           : List bats-core container images
   -k           : List shellcheck targets
     ' '
-  -g           : Enable debug mode
+  -g           : Enable debug mode in test cases
   -o           : Enable container mode (for -b and -t)
   -h           : Show Help
     ' "
@@ -360,5 +379,7 @@ The tool also sets and exports shell environment variables that can be used dire
   -u ShellCheck: Full path to the bats-core shell script. Alternative: exported shell variable TESTMANSH_CMD_SHELLCHECK
   -m Format    : Show test results on STDOUT using the Format type. Format: shellcheck and bats-core dependant
   -j JUnitFile : Save test results in JUnit format to the file JUnitFile. Format: full path
+  -V Verbose   : Set verbosity level. Format: one of BL64_MSG_VERBOSE_*
+  -D Debug     : Enable debugging mode. Format: one of BL64_DBG_TARGET_*
     "
 }

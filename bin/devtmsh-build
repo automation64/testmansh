@@ -5,13 +5,14 @@ source ./bin/devtmsh-set || exit 1
 # shellcheck source=SCRIPTDIR/../lib/bashlib64.bash
 source "$DEVTMSH_LIB_BASHLIB64"
 
-bl64_msg_show_text "Build app (${DEVTMSH_BUILD_TARGET})"
+bl64_msg_all_enable_verbose
+bl64_msg_show_task "Build app (${DEVTMSH_BUILD_TARGET})"
 # shellcheck disable=SC2154
 bl64_fs_merge_files \
   '0755' \
-  "$BL64_LIB_DEFAULT" \
-  "$BL64_LIB_DEFAULT" \
-  "$BL64_LIB_VAR_ON" \
+  "$BL64_VAR_DEFAULT" \
+  "$BL64_VAR_DEFAULT" \
+  "$BL64_VAR_ON" \
   "$DEVTMSH_BUILD_TARGET" \
   "${DEVTMSH_SRC}/${DEVTMSH_APP_NAME}-header.bash" \
   "$DEVTMSH_LIB_BASHLIB64" \
