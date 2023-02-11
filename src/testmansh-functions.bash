@@ -237,7 +237,7 @@ function testmansh_open_container() {
     --env TESTMANSH_TEST_BATSCORE_SETUP \
     --env TESTMANSH_CMD_BATS_HELPER_SUPPORT \
     --env TESTMANSH_CMD_BATS_HELPER_ASSERT \
-    --env TESTMANSH_CMD_BATS_HELPER_F \
+    --env TESTMANSH_CMD_BATS_HELPER_FILE \
     --env BATSLIB_TEMP_PRESERVE_ON_FAILURE \
     --env BATSLIB_TEMP_PRESERVE \
     --volume "${TESTMANSH_PROJECT}:${TESTMANSH_CONTAINER64_PROJECT}" \
@@ -269,9 +269,16 @@ function testmansh_list_linter_scope() {
 }
 
 function testmansh_initialize() {
-  local container="$1"
+  local debug="$1"
+  local verbose="$2"
+  local command="$3"
+  local container="$4"
 
-  [[ -z "$testmansh_command" ]] && testmansh_help && return 1
+  [[ -z "$command" ]] && testmansh_help && return 1
+
+  bl64_dbg_set_level "$debug" &&
+    bl64_msg_set_level "$verbose" ||
+    return $?
 
   TESTMANSH_PROJECT="${TESTMANSH_PROJECT:-$(pwd)}"
   TESTMANSH_DEFAULT_TEST_PATH="${TESTMANSH_PROJECT}/${TESTMANSH_DEFAULT_TEST_PREFIX}"
@@ -308,12 +315,24 @@ function testmansh_initialize() {
     TESTMANSH_CMD_BATS_HELPER_ASSERT="${TESTMANSH_CMD_BATS_HELPER_ASSERT:-/opt/bats-core/test_helpers/assert/load.bash}"
     TESTMANSH_CMD_BATS_HELPER_FILE="${TESTMANSH_CMD_BATS_HELPER_FILE:-/opt/bats-core/test_helpers/file/load.bash}"
   fi
+  bl64_dbg_app_show_info "[TESTMANSH_PROJECT_ROOT=${TESTMANSH_PROJECT_ROOT}]"
+  bl64_dbg_app_show_info "[TESTMANSH_PROJECT_BIN=${TESTMANSH_PROJECT_BIN}]"
+  bl64_dbg_app_show_info "[TESTMANSH_PROJECT_SRC=${TESTMANSH_PROJECT_SRC}]"
+  bl64_dbg_app_show_info "[TESTMANSH_PROJECT_LIB=${TESTMANSH_PROJECT_LIB}]"
+  bl64_dbg_app_show_info "[TESTMANSH_PROJECT_BUILD=${TESTMANSH_PROJECT_BUILD}]"
+  bl64_dbg_app_show_info "[TESTMANSH_TEST=${TESTMANSH_TEST}]"
+  bl64_dbg_app_show_info "[TESTMANSH_TEST_SAMPLES=${TESTMANSH_TEST_SAMPLES}]"
+  bl64_dbg_app_show_info "[TESTMANSH_TEST_LIB=${TESTMANSH_TEST_LIB}]"
+  bl64_dbg_app_show_info "[TESTMANSH_TEST_BATSCORE_SETUP=${TESTMANSH_TEST_BATSCORE_SETUP}]"
+  bl64_dbg_app_show_info "[TESTMANSH_CMD_BATS_HELPER_SUPPORT=${TESTMANSH_CMD_BATS_HELPER_SUPPORT}]"
+  bl64_dbg_app_show_info "[TESTMANSH_CMD_BATS_HELPER_ASSERT=${TESTMANSH_CMD_BATS_HELPER_ASSERT}]"
+  bl64_dbg_app_show_info "[TESTMANSH_CMD_BATS_HELPER_FILE=${TESTMANSH_CMD_BATS_HELPER_FILE}]"
 
 }
 
 function testmansh_help() {
   bl64_msg_show_usage \
-    '<-b|-t|-q|-l|-i|k> [-p Project] [-c Case] [-e Image] [-r Registry] [-s BatsCore] [-u ShellCheck] [-f EnvFile] [-m Format|-j JUnitFile] [-g] [-h]' \
+    '<-b|-t|-q|-l|-i|k> [-p Project] [-c Case] [-e Image] [-r Registry] [-s BatsCore] [-u ShellCheck] [-f EnvFile] [-m Format|-j JUnitFile] [-g] [-V Verbose] [-D Debug] [-h]' \
     'Simple tool for testing Bash scripts in native environment or purpose-build container images.
 
 By default testmansh assumes that scripts are organized using the following directory structure:
@@ -347,7 +366,7 @@ The tool also sets and exports shell environment variables that can be used dire
   -i           : List bats-core container images
   -k           : List shellcheck targets
     ' '
-  -g           : Enable debug mode
+  -g           : Enable debug mode in test cases
   -o           : Enable container mode (for -b and -t)
   -h           : Show Help
     ' "
@@ -360,5 +379,7 @@ The tool also sets and exports shell environment variables that can be used dire
   -u ShellCheck: Full path to the bats-core shell script. Alternative: exported shell variable TESTMANSH_CMD_SHELLCHECK
   -m Format    : Show test results on STDOUT using the Format type. Format: shellcheck and bats-core dependant
   -j JUnitFile : Save test results in JUnit format to the file JUnitFile. Format: full path
+  -V Verbose   : Set verbosity level. Format: one of BL64_MSG_VERBOSE_*
+  -D Debug     : Enable debugging mode. Format: one of BL64_DBG_TARGET_*
     "
 }
