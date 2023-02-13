@@ -64,7 +64,6 @@ function dev_set_load_env() {
       echo "Error: unable to read environment variables"
       return 1
     }
-  echo 'Dev environment variables loading completed OK'
 }
 
 #
@@ -82,5 +81,8 @@ else
   dev_set_load_exported
 fi
 
-dev_set_check_root || return $?
-dev_set_load_env
+dev_set_check_root &&
+  dev_set_load_env ||
+  return $?
+
+echo 'Dev environment variables loading completed OK'
