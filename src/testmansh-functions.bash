@@ -271,8 +271,8 @@ function testmansh_list_linter_scope() {
 function testmansh_initialize() {
   local debug="$1"
   local verbose="$2"
-  local command="$3"
-  local container="$4"
+  local container="$3"
+  local command="$4"
 
   [[ -z "$command" ]] && testmansh_help && return 1
 
