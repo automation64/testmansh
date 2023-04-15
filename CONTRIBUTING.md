@@ -27,7 +27,7 @@
 - Download dev support scripts
 
 ```shell
-./bin/devtmsh-lib
+./bin/dev-lib
 ```
 
 ## Update source code
@@ -39,7 +39,7 @@
 - Build the `testmansh` script:
 
 ```shell
-./bin/devtmsh-build
+./bin/dev-build
 ```
 
 ## Test source code
