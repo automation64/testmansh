@@ -103,7 +103,7 @@ testmansh -t -o
 
 ### Compatibility
 
-Same as [bashlib64](https://github.com/serdigital64/bashlib64#os-compatibility)
+Same as [bashlib64](https://github.com/automation64/bashlib64#os-compatibility)
 
 ### Requirements
 
@@ -116,7 +116,7 @@ Same as [bashlib64](https://github.com/serdigital64/bashlib64#os-compatibility)
 Download **testmansh** from the source GitHub repository:
 
 ```shell
-curl -O https://raw.githubusercontent.com/serdigital64/testmansh/main/testmansh
+curl -O https://raw.githubusercontent.com/automation64/testmansh/main/testmansh
 chmod 0755 testmansh
 # Optional: move to searchable path
 mv testmansh ~/.local/bin
@@ -126,8 +126,8 @@ mv testmansh ~/.local/bin
 
 Help on implementing new features and maintaining the code base is welcomed.
 
-- [Guidelines](https://github.com/serdigital64/testmansh/blob/main/CONTRIBUTING.md)
-- [Contributor Covenant Code of Conduct](https://github.com/serdigital64/testmansh/blob/main/CODE_OF_CONDUCT.md)
+- [Guidelines](https://github.com/automation64/testmansh/blob/main/CONTRIBUTING.md)
+- [Contributor Covenant Code of Conduct](https://github.com/automation64/testmansh/blob/main/CODE_OF_CONDUCT.md)
 
 ### License
 
