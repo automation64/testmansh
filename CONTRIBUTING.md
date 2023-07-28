@@ -9,8 +9,7 @@
 - Clone GIT repository
 
   ```shell
-  git clone https://github.com/serdigital64/testmansh
-  git flow init
+  git clone https://github.com/automation64/testmansh
   ```
 
 - Adjust environment variables to match your configuration:
@@ -53,6 +52,6 @@
 
 ## Repositories
 
-- Project GIT repository: [https://github.com/serdigital64/testmansh](https://github.com/serdigital64/testmansh)
-- Project Documentation: [https://github.com/serdigital64/testmansh](https://github.com/serdigital64/testmansh)
+- Project GIT repository: [https://github.com/automation64/testmansh](https://github.com/automation64/testmansh)
+- Project Documentation: [https://github.com/automation64/testmansh](https://github.com/automation64/testmansh)
 - Release history: [CHANGELOG](CHANGELOG.md)
