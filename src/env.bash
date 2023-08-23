@@ -17,7 +17,7 @@ export TESTMANSH_DEFAULT_LINT_PATH
 export TESTMANSH_ENV
 export TESTMANSH_CMD_BATS="${TESTMANSH_CMD_BATS:-/opt/bats-core/bin/bats}"
 export TESTMANSH_CMD_SHELLCHECK="${TESTMANSH_CMD_SHELLCHECK:-/usr/bin/shellcheck}"
-export TESTMANSH_REGISTRY="${TESTMANSH_REGISTRY:-ghcr.io/serdigital64}"
+export TESTMANSH_REGISTRY="${TESTMANSH_REGISTRY:-ghcr.io/automation64}"
 export TESTMANSH_IMAGES_TEST="${TESTMANSH_IMAGES_TEST:-}"
 
 # Bats-core internal variables
