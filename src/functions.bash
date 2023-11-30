@@ -3,6 +3,7 @@
 #
 
 function testmansh_run_linter() {
+  bl64_dbg_app_show_function "@"
   local container="$1"
   local format="$2"
   local report="$3"
@@ -76,10 +77,9 @@ function testmansh_run_linter() {
 }
 
 function testmansh_run_linter_container() {
+  bl64_dbg_app_show_function "@"
   local format="$1"
   local flags="$2"
-
-  bl64_cnt_setup || return $?
 
   shift
   shift
@@ -92,6 +92,7 @@ function testmansh_run_linter_container() {
 }
 
 function testmansh_run_linter_native() {
+  bl64_dbg_app_show_function "@"
   local format="$1"
   local flags="$2"
 
@@ -107,6 +108,7 @@ function testmansh_run_linter_native() {
 }
 
 function testmansh_run_test() {
+  bl64_dbg_app_show_function "@"
   local container="$1"
   local format="$2"
   local report="$3"
@@ -147,6 +149,7 @@ function testmansh_run_test() {
 }
 
 function testmansh_run_test_native() {
+  bl64_dbg_app_show_function "@"
   local report="$1"
   local flags="$2"
   local target="$3"
@@ -163,6 +166,7 @@ function testmansh_run_test_native() {
 }
 
 function testmansh_run_test_container() {
+  bl64_dbg_app_show_function "@"
   local report="$1"
   local flags="$2"
   local target="$3"
@@ -184,12 +188,11 @@ function testmansh_run_test_container() {
 }
 
 function testmansh_run_test_container_batscore() {
+  bl64_dbg_app_show_function "@"
   local container="$1"
   local target="$2"
   local flags="$3"
   local env_file="$4"
-
-  bl64_cnt_setup || return $?
 
   # shellcheck disable=SC2086
   bl64_cnt_run_interactive \
@@ -215,10 +218,9 @@ function testmansh_run_test_container_batscore() {
 }
 
 function testmansh_open_container() {
+  bl64_dbg_app_show_function
   local target='/bin/bash'
   local env_file=''
-
-  bl64_cnt_setup || return $?
 
   [[ -n "$TESTMANSH_ENV" && -r "$TESTMANSH_ENV" ]] && env_file="--env-file $TESTMANSH_ENV"
   bl64_dbg_app_show_vars 'env_file'
@@ -246,6 +248,7 @@ function testmansh_open_container() {
 }
 
 function testmansh_list_images() {
+  bl64_dbg_app_show_function
   bl64_msg_show_text "Container images for bats-core test cases:"
   echo "$TESTMANSH_IMAGES_TEST"
   bl64_msg_show_text "Container image for shellcheck:"
@@ -253,6 +256,7 @@ function testmansh_list_images() {
 }
 
 function testmansh_list_test_scope() {
+  bl64_dbg_app_show_function
   bl64_check_directory "$TESTMANSH_DEFAULT_TEST_PATH" 'default path for test-cases not found. Please use -c to indicate where the code is.' || return $?
   bl64_msg_show_text "Test cases scope for bats-core (project: $TESTMANSH_PROJECT)"
   # shellcheck disable=SC2164
@@ -261,6 +265,7 @@ function testmansh_list_test_scope() {
 }
 
 function testmansh_list_linter_scope() {
+  bl64_dbg_app_show_function
   bl64_check_directory "$TESTMANSH_DEFAULT_LINT_PATH" 'default path for source code files not found. Please use -c to indicate where cases are.' || return $?
   bl64_msg_show_text "Source code scope for shellcheck (project: $TESTMANSH_PROJECT)"
   # shellcheck disable=SC2164
@@ -278,6 +283,10 @@ function testmansh_initialize() {
   if [[ "$command" == 'open_container' ]]; then
     bl64_check_parameter 'TESTMANSH_IMAGES_TEST' 'Please specify what container image to open with the parameter -e Image' ||
     return $?
+  fi
+
+  if [[ "$container" == "$BL64_VAR_ON" ]]; then
+    bl64_cnt_setup || return $?
   fi
 
   TESTMANSH_PROJECT="${TESTMANSH_PROJECT:-$(pwd)}"
