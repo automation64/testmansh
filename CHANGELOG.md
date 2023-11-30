@@ -5,7 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.10.0]
+
+### Changed
+
+- Open container image now requires Image name parameter (-e)
+- Updated default container image list for bash test
+
+### Fixed
+
+- Linter in container mode now sets workdir to the project path
 
 ## [1.9.1]
 
@@ -67,6 +76,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Remove tool from project bashlib64 and make stand-alone
 
+[1.10.0]: https://github.com/automation64/testmansh/compare/1.9.1...1.10.0
 [1.9.1]: https://github.com/automation64/testmansh/compare/1.8.0...1.9.1
 [1.8.0]: https://github.com/automation64/testmansh/compare/1.7.0...1.8.0
 [1.7.0]: https://github.com/automation64/testmansh/compare/1.6.0...1.7.0
