@@ -12,6 +12,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Open container image now requires Image name parameter (-e)
 - Updated default container image list for bash test
 
+### Fixed
+
+- Linter in container mode now sets workdir to the project path
+
 ## [1.9.1]
 
 ### Added
