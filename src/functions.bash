@@ -86,6 +86,7 @@ function testmansh_run_linter_container() {
   # shellcheck disable=SC2086
   bl64_cnt_run_interactive \
     --volume "${TESTMANSH_PROJECT}:${TESTMANSH_CONTAINER64_PROJECT}" \
+    --workdir "${TESTMANSH_CONTAINER64_PROJECT}" \
     "${TESTMANSH_REGISTRY}/${TESTMANSH_IMAGES_LINT}" \
     $flags \
     "$@"
@@ -96,15 +97,16 @@ function testmansh_run_linter_native() {
   local format="$1"
   local flags="$2"
 
-  bl64_check_command "$TESTMANSH_CMD_SHELLCHECK" || return $?
-
   shift
   shift
   cd "$TESTMANSH_PROJECT" || return 1
+  bl64_dbg_app_show_info "current path: $(pwd)"
+  bl64_dbg_app_trace_start
   # shellcheck disable=SC2086
   "$TESTMANSH_CMD_SHELLCHECK" \
     $flags \
     "$@"
+  bl64_dbg_app_trace_stop
 }
 
 function testmansh_run_test() {
@@ -154,7 +156,6 @@ function testmansh_run_test_native() {
   local flags="$2"
   local target="$3"
 
-  bl64_check_command "$TESTMANSH_CMD_BATS" || return $?
   bl64_dbg_app_show_vars 'target' 'flags'
 
   # shellcheck disable=SC2086
@@ -283,6 +284,10 @@ function testmansh_initialize() {
   if [[ "$command" == 'open_container' ]]; then
     bl64_check_parameter 'TESTMANSH_IMAGES_TEST' 'Please specify what container image to open with the parameter -e Image' ||
     return $?
+  elif [[ "$command" == 'run_linter' && "$container" == "$BL64_VAR_OFF" ]]; then
+    bl64_check_command "$TESTMANSH_CMD_SHELLCHECK" || return $?
+  elif [[ "$command" == 'run_test' && "$container" == "$BL64_VAR_OFF" ]]; then
+    bl64_check_command "$TESTMANSH_CMD_BATS" || return $?
   fi
 
   if [[ "$container" == "$BL64_VAR_ON" ]]; then
