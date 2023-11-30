@@ -45,22 +45,12 @@ export TESTMANSH_CMD_BATS_HELPER_SUPPORT
 export TESTMANSH_CMD_BATS_HELPER_ASSERT
 export TESTMANSH_CMD_BATS_HELPER_FILE
 
-# Default container images based on container64
+# Default container images
 export TESTMANSH_IMAGES_LINT="${TESTMANSH_IMAGES_LINT:-shell-lint/alpine-3-shell-lint:latest}"
 export TESTMANSH_CONTAINER64_TEST=''
-TESTMANSH_CONTAINER64_TEST="${TESTMANSH_CONTAINER64_TEST} bash-test/almalinux-8-bash-test:latest"
-TESTMANSH_CONTAINER64_TEST="${TESTMANSH_CONTAINER64_TEST} bash-test/alpine-3-bash-test:latest"
-TESTMANSH_CONTAINER64_TEST="${TESTMANSH_CONTAINER64_TEST} bash-test/rhel-8-bash-test:latest bash-test/rhel-9-bash-test:latest"
-TESTMANSH_CONTAINER64_TEST="${TESTMANSH_CONTAINER64_TEST} bash-test/rockylinux-8-bash-test:latest"
-TESTMANSH_CONTAINER64_TEST="${TESTMANSH_CONTAINER64_TEST} bash-test/centos-7-bash-test:latest bash-test/centos-8-bash-test:latest bash-test/centos-9-bash-test:latest"
-TESTMANSH_CONTAINER64_TEST="${TESTMANSH_CONTAINER64_TEST} bash-test/oraclelinux-7-bash-test:latest bash-test/oraclelinux-8-bash-test:latest bash-test/oraclelinux-9-bash-test:latest"
-TESTMANSH_CONTAINER64_TEST="${TESTMANSH_CONTAINER64_TEST} bash-test/fedora-33-bash-test:latest bash-test/fedora-34-bash-test:latest bash-test/fedora-35-bash-test:latest bash-test/fedora-36-bash-test:latest"
-TESTMANSH_CONTAINER64_TEST="${TESTMANSH_CONTAINER64_TEST} bash-test/debian-9-bash-test:latest bash-test/debian-10-bash-test:latest bash-test/debian-11-bash-test:latest"
-TESTMANSH_CONTAINER64_TEST="${TESTMANSH_CONTAINER64_TEST} bash-test/ubuntu-20.4-bash-test:latest bash-test/ubuntu-21.4-bash-test:latest bash-test/ubuntu-22.4-bash-test:latest"
-TESTMANSH_CONTAINER64_TEST="${TESTMANSH_CONTAINER64_TEST} bash-test/oraclelinux-8-bash-test-psql-13:latest"
-TESTMANSH_CONTAINER64_TEST="${TESTMANSH_CONTAINER64_TEST} bash-test/oraclelinux-9-bash-test-ansible-2:latest"
-TESTMANSH_CONTAINER64_TEST="${TESTMANSH_CONTAINER64_TEST} bash-test/oraclelinux-9-bash-test-cloud:latest"
-TESTMANSH_CONTAINER64_TEST="${TESTMANSH_CONTAINER64_TEST} bash-test/oraclelinux-9-bash-test-k8s:latest"
-TESTMANSH_CONTAINER64_TEST="${TESTMANSH_CONTAINER64_TEST} bash-test/oraclelinux-9-bash-test-mongosh-6:latest"
-TESTMANSH_CONTAINER64_TEST="${TESTMANSH_CONTAINER64_TEST} bash-test/oraclelinux-9-bash-test-terraform:latest"
-export TESTMANSH_IMAGES_TEST="${TESTMANSH_IMAGES_TEST:-${TESTMANSH_CONTAINER64_TEST}}"
+TESTMANSH_CONTAINER64_TEST+='bash-test/alpine-3-bash-test:latest'
+TESTMANSH_CONTAINER64_TEST+='bash-test/rhel-8-bash-test:latest bash-test/rhel-9-bash-test:latest'
+TESTMANSH_CONTAINER64_TEST+='bash-test/centos-7-bash-test:latest bash-test/centos-8-bash-test:latest bash-test/centos-9-bash-test:latest'
+TESTMANSH_CONTAINER64_TEST+='bash-test/debian-9-bash-test:latest bash-test/debian-10-bash-test:latest bash-test/debian-11-bash-test:latest'
+TESTMANSH_CONTAINER64_TEST+='bash-test/ubuntu-20.4-bash-test:latest bash-test/ubuntu-21.4-bash-test:latest bash-test/ubuntu-22.4-bash-test:latest'
+TESTMANSH_CONTAINER64_TEST+='bash-test/sles-15-bash-test:latest'

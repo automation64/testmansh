@@ -269,16 +269,16 @@ function testmansh_list_linter_scope() {
 }
 
 function testmansh_initialize() {
-  local debug="$1"
-  local verbose="$2"
-  local container="$3"
-  local command="$4"
+  local command="$1"
+  local container="$2"
 
-  [[ -z "$command" ]] && testmansh_help && return 1
+  bl64_check_parameter 'command' ||
+    { testmansh_help && return 1; }
 
-  bl64_dbg_set_level "$debug" &&
-    bl64_msg_set_level "$verbose" ||
+  if [[ "$command" == 'open_container' ]]; then
+    bl64_check_parameter 'TESTMANSH_IMAGES_TEST' 'Please specify what container image to open with the parameter -e Image' ||
     return $?
+  fi
 
   TESTMANSH_PROJECT="${TESTMANSH_PROJECT:-$(pwd)}"
   TESTMANSH_DEFAULT_TEST_PATH="${TESTMANSH_PROJECT}/${TESTMANSH_DEFAULT_TEST_PREFIX}"
@@ -315,19 +315,21 @@ function testmansh_initialize() {
     TESTMANSH_CMD_BATS_HELPER_ASSERT="${TESTMANSH_CMD_BATS_HELPER_ASSERT:-/opt/bats-core/test_helpers/assert/load.bash}"
     TESTMANSH_CMD_BATS_HELPER_FILE="${TESTMANSH_CMD_BATS_HELPER_FILE:-/opt/bats-core/test_helpers/file/load.bash}"
   fi
-  bl64_dbg_app_show_info "[TESTMANSH_PROJECT_ROOT=${TESTMANSH_PROJECT_ROOT}]"
-  bl64_dbg_app_show_info "[TESTMANSH_PROJECT_BIN=${TESTMANSH_PROJECT_BIN}]"
-  bl64_dbg_app_show_info "[TESTMANSH_PROJECT_SRC=${TESTMANSH_PROJECT_SRC}]"
-  bl64_dbg_app_show_info "[TESTMANSH_PROJECT_LIB=${TESTMANSH_PROJECT_LIB}]"
-  bl64_dbg_app_show_info "[TESTMANSH_PROJECT_BUILD=${TESTMANSH_PROJECT_BUILD}]"
-  bl64_dbg_app_show_info "[TESTMANSH_TEST=${TESTMANSH_TEST}]"
-  bl64_dbg_app_show_info "[TESTMANSH_TEST_SAMPLES=${TESTMANSH_TEST_SAMPLES}]"
-  bl64_dbg_app_show_info "[TESTMANSH_TEST_LIB=${TESTMANSH_TEST_LIB}]"
-  bl64_dbg_app_show_info "[TESTMANSH_TEST_BATSCORE_SETUP=${TESTMANSH_TEST_BATSCORE_SETUP}]"
-  bl64_dbg_app_show_info "[TESTMANSH_CMD_BATS_HELPER_SUPPORT=${TESTMANSH_CMD_BATS_HELPER_SUPPORT}]"
-  bl64_dbg_app_show_info "[TESTMANSH_CMD_BATS_HELPER_ASSERT=${TESTMANSH_CMD_BATS_HELPER_ASSERT}]"
-  bl64_dbg_app_show_info "[TESTMANSH_CMD_BATS_HELPER_FILE=${TESTMANSH_CMD_BATS_HELPER_FILE}]"
+  bl64_dbg_app_show_vars \
+    'TESTMANSH_PROJECT_ROOT' \
+    'TESTMANSH_PROJECT_BIN' \
+    'TESTMANSH_PROJECT_SRC' \
+    'TESTMANSH_PROJECT_LIB' \
+    'TESTMANSH_PROJECT_BUILD' \
+    'TESTMANSH_TEST' \
+    'TESTMANSH_TEST_SAMPLES' \
+    'TESTMANSH_TEST_LIB' \
+    'TESTMANSH_TEST_BATSCORE_SETUP' \
+    'TESTMANSH_CMD_BATS_HELPER_SUPPORT' \
+    'TESTMANSH_CMD_BATS_HELPER_ASSERT' \
+    'TESTMANSH_CMD_BATS_HELPER_FILE'
 
+  return 0
 }
 
 function testmansh_help() {
@@ -358,7 +360,7 @@ The tool also sets and exports shell environment variables that can be used dire
   - TESTMANSH_CMD_BATS_HELPER_SUPPORT: full path to the bats-core support helper
   - TESTMANSH_CMD_BATS_HELPER_ASSERT: full path to the bats-core assert helper
   - TESTMANSH_CMD_BATS_HELPER_FILE: full path to the bats-core file helper' \
-  '
+    '
   -b           : Run bats-core tests
   -t           : Run shellcheck linter
   -q           : Open bats-core container
