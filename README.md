@@ -17,7 +17,7 @@ Supported tools
 ## Usage
 
 ```text
-Usage: testmansh <-b|-t|-q|-l|-i|k> [-p Project] [-c Case] [-e Image] [-r Registry] [-s BatsCore] [-u ShellCheck] [-f EnvFile] [-m Format|-j JUnitFile] [-g] [-h]
+Usage: testmansh <-b|-t|-q|-l|-i|k> [-p Project] [-c Case] [-e Image] [-o|-a] [-r Registry] [-s BatsCore] [-u ShellCheck] [-f EnvFile] [-m Format|-j JUnitFile] [-g] [-V Verbose] [-D Debug] [-h]
 
 Simple tool for testing Bash scripts in native environment or purpose-build container images.
 
@@ -56,8 +56,9 @@ Commands
 
 Flags
 
-  -g           : Enable debug mode
+  -g           : Enable debug mode in test cases
   -o           : Enable container mode (for -b and -t)
+  -a           : Autodetect best mode (for -t)
   -h           : Show Help
 
 Parameters
@@ -71,7 +72,8 @@ Parameters
   -u ShellCheck: Full path to the bats-core shell script. Alternative: exported shell variable TESTMANSH_CMD_SHELLCHECK
   -m Format    : Show test results on STDOUT using the Format type. Format: shellcheck and bats-core dependant
   -j JUnitFile : Save test results in JUnit format to the file JUnitFile. Format: full path
-```
+  -V Verbose   : Set verbosity level. Format: one of BL64_MSG_VERBOSE_*
+  -D Debug     : Enable debugging mode. Format: one of BL64_DBG_TARGET_*```
 
 ### Run bats-core test-cases in container images
 
