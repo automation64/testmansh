@@ -4,10 +4,9 @@
 
 function testmansh_run_linter() {
   bl64_dbg_app_show_function "@"
-  local container="$1"
-  local format="$2"
-  local report="$3"
-  local case="$4"
+  local format="$1"
+  local report="$2"
+  local case="$3"
   local target=''
   local flags='--shell=bash --color=never --wiki-link-count=0 --external-sources --severity=style'
   local prefix=''
@@ -23,7 +22,7 @@ function testmansh_run_linter() {
   if [[ "$case" == 'all' ]]; then
     bl64_check_directory "$TESTMANSH_DEFAULT_LINT_PATH" 'default path for source code files not found. Please use -c to indicate where cases are.' || return $?
 
-    if [[ "$container" == "$BL64_VAR_ON" ]]; then
+    if [[ "$TESTMANSH_MODE" == "$TESTMANSH_MODE_CONTAINER" ]]; then
       prefix="${TESTMANSH_CONTAINER64_PROJECT}/${TESTMANSH_DEFAULT_LINT_PREFIX}/"
     else
       prefix="$TESTMANSH_DEFAULT_LINT_PREFIX/"
@@ -37,7 +36,7 @@ function testmansh_run_linter() {
 
   elif [[ -d "${TESTMANSH_PROJECT}/${case}" ]]; then
 
-    if [[ "$container" == "$BL64_VAR_ON" ]]; then
+    if [[ "$TESTMANSH_MODE" == "$TESTMANSH_MODE_CONTAINER" ]]; then
       prefix="${TESTMANSH_CONTAINER64_PROJECT}/${case}/"
     else
       prefix="${case}/"
@@ -49,7 +48,7 @@ function testmansh_run_linter() {
       bl64_fs_find_files | bl64_fmt_list_to_string "$BL64_VAR_DEFAULT" "${prefix}"
     )"
   elif [[ -f "${TESTMANSH_PROJECT}/${case}" ]]; then
-    if [[ "$container" == "$BL64_VAR_ON" ]]; then
+    if [[ "$TESTMANSH_MODE" == "$TESTMANSH_MODE_CONTAINER" ]]; then
       target="${TESTMANSH_CONTAINER64_PROJECT}/${case}"
     else
       target="$case"
@@ -61,7 +60,7 @@ function testmansh_run_linter() {
 
   bl64_msg_show_text "Run shellcheck linter on project: ${TESTMANSH_PROJECT}"
   # shellcheck disable=SC2086
-  if [[ "$container" == "$BL64_VAR_ON" ]]; then
+  if [[ "$TESTMANSH_MODE" == "$TESTMANSH_MODE_CONTAINER" ]]; then
     if [[ "$report" != "$BL64_VAR_DEFAULT" ]]; then
       testmansh_run_linter_container "$format" "$flags" $target >"$report"
     else
@@ -111,11 +110,10 @@ function testmansh_run_linter_native() {
 
 function testmansh_run_test() {
   bl64_dbg_app_show_function "@"
-  local container="$1"
-  local format="$2"
-  local report="$3"
-  local debug="$4"
-  local case="$5"
+  local format="$1"
+  local report="$2"
+  local debug="$3"
+  local case="$4"
   local flags='--recursive'
 
   # Set report output and format
@@ -143,7 +141,7 @@ function testmansh_run_test() {
   fi
 
   bl64_msg_show_text "run bats-core test-cases on project: ${TESTMANSH_PROJECT}"
-  if [[ "$container" == "$BL64_VAR_ON" ]]; then
+  if [[ "$TESTMANSH_MODE" == "$TESTMANSH_MODE_CONTAINER" ]]; then
     testmansh_run_test_container "$report" "$flags" "${TESTMANSH_CONTAINER64_PROJECT}/${case}"
   else
     testmansh_run_test_native "$report" "$flags" "${TESTMANSH_PROJECT}/${case}"
@@ -276,33 +274,39 @@ function testmansh_list_linter_scope() {
 
 function testmansh_initialize() {
   local command="$1"
-  local container="$2"
 
   bl64_check_parameter 'command' ||
     { testmansh_help && return 1; }
 
+  bl64_dbg_app_show_info 'determine execution mode'
+  if [[ "$TESTMANSH_MODE" == "$TESTMANSH_MODE_CONTAINER" ]]; then
+    bl64_cnt_setup || return $?
+  elif [[ "$TESTMANSH_MODE" == "$TESTMANSH_MODE_DETECT" ]]; then
+    if ! bl64_cnt_is_inside_container && bl64_cnt_setup 2> /dev/null; then
+      TESTMANSH_MODE="$TESTMANSH_MODE_CONTAINER"
+    else
+      TESTMANSH_MODE="$TESTMANSH_MODE_NATIVE"
+    fi
+  fi
+
   if [[ "$command" == 'open_container' ]]; then
     bl64_check_parameter 'TESTMANSH_IMAGES_TEST' 'Please specify what container image to open with the parameter -e Image' ||
     return $?
-  elif [[ "$command" == 'run_linter' && "$container" == "$BL64_VAR_OFF" ]]; then
+  elif [[ "$command" == 'run_linter' && "$TESTMANSH_MODE" == "$TESTMANSH_MODE_NATIVE" ]]; then
     bl64_check_command "$TESTMANSH_CMD_SHELLCHECK" || return $?
-  elif [[ "$command" == 'run_test' && "$container" == "$BL64_VAR_OFF" ]]; then
+  elif [[ "$command" == 'run_test' && "$TESTMANSH_MODE" == "$TESTMANSH_MODE_NATIVE" ]]; then
     bl64_check_command "$TESTMANSH_CMD_BATS" || return $?
   fi
 
-  if [[ "$container" == "$BL64_VAR_ON" ]]; then
-    bl64_cnt_setup || return $?
-  fi
-
+  bl64_dbg_app_show_info 'Adjust project paths'
   TESTMANSH_PROJECT="${TESTMANSH_PROJECT:-$(pwd)}"
   TESTMANSH_DEFAULT_TEST_PATH="${TESTMANSH_PROJECT}/${TESTMANSH_DEFAULT_TEST_PREFIX}"
   TESTMANSH_DEFAULT_LINT_PATH="${TESTMANSH_PROJECT}/${TESTMANSH_DEFAULT_LINT_PREFIX}"
   TESTMANSH_ENV="${TESTMANSH_ENV:-${TESTMANSH_PROJECT}/test/container.env}"
-
   bl64_check_directory "$TESTMANSH_PROJECT" || return $?
 
-  # Adjust test-case default paths based on container mode flag
-  if [[ "$container" == "$BL64_VAR_ON" ]]; then
+  bl64_dbg_app_show_info 'Adjust test-case default paths based on container mode flag'
+  if [[ "$TESTMANSH_MODE" == "$TESTMANSH_MODE_CONTAINER" ]]; then
     TESTMANSH_PROJECT_ROOT="${TESTMANSH_CONTAINER64_PROJECT}"
     TESTMANSH_PROJECT_BIN="${TESTMANSH_CONTAINER64_PROJECT}/bin"
     TESTMANSH_PROJECT_SRC="${TESTMANSH_CONTAINER64_PROJECT}/src"
@@ -348,7 +352,7 @@ function testmansh_initialize() {
 
 function testmansh_help() {
   bl64_msg_show_usage \
-    '<-b|-t|-q|-l|-i|k> [-p Project] [-c Case] [-e Image] [-r Registry] [-s BatsCore] [-u ShellCheck] [-f EnvFile] [-m Format|-j JUnitFile] [-g] [-V Verbose] [-D Debug] [-h]' \
+    '<-b|-t|-q|-l|-i|k> [-p Project] [-c Case] [-e Image] [-o|-a] [-r Registry] [-s BatsCore] [-u ShellCheck] [-f EnvFile] [-m Format|-j JUnitFile] [-g] [-V Verbose] [-D Debug] [-h]' \
     'Simple tool for testing Bash scripts in native environment or purpose-build container images.
 
 By default testmansh assumes that scripts are organized using the following directory structure:
@@ -384,6 +388,7 @@ The tool also sets and exports shell environment variables that can be used dire
     ' '
   -g           : Enable debug mode in test cases
   -o           : Enable container mode (for -b and -t)
+  -a           : Autodetect best mode (for -t)
   -h           : Show Help
     ' "
   -p Project   : Full path to the project location. Alternative: exported shell variable TESTMANSH_PROJECT. Default: current location
