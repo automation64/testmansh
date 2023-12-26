@@ -24,6 +24,12 @@ export TESTMANSH_IMAGES_TEST="${TESTMANSH_IMAGES_TEST:-}"
 export BATSLIB_TEMP_PRESERVE_ON_FAILURE
 export BATSLIB_TEMP_PRESERVE
 
+# Execution mode
+export TESTMANSH_MODE=''
+export TESTMANSH_MODE_NATIVE='N'
+export TESTMANSH_MODE_CONTAINER='C'
+export TESTMANSH_MODE_DETECT='D'
+
 # Container variables for container64 based images
 export TESTMANSH_CONTAINER64_PROJECT="/prj"
 export TESTMANSH_CONTAINER64_BATS="/opt/bats-core/bin/bats"
