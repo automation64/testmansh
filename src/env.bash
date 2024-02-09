@@ -18,7 +18,7 @@ export TESTMANSH_ENV
 export TESTMANSH_CMD_BATS="${TESTMANSH_CMD_BATS:-/opt/bats-core/bin/bats}"
 export TESTMANSH_CMD_SHELLCHECK="${TESTMANSH_CMD_SHELLCHECK:-/usr/bin/shellcheck}"
 export TESTMANSH_REGISTRY="${TESTMANSH_REGISTRY:-ghcr.io/automation64}"
-export TESTMANSH_IMAGES_TEST="${TESTMANSH_IMAGES_TEST:-}"
+export TESTMANSH_IMAGES_TEST="${TESTMANSH_IMAGES_TEST:-bash-test/alpine-3-bash-test}"
 
 # Bats-core internal variables
 export BATSLIB_TEMP_PRESERVE_ON_FAILURE
