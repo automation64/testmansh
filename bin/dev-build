@@ -20,7 +20,11 @@ bl64_fs_merge_files \
   "$BL64_VAR_ON" \
   "$DEVTMSH_BUILD_FULL_PATH" \
   "${DEVTMSH_SRC}/header.bash" \
-  "$DEVTMSH_CICD_BASHLIB64" \
+  "${DEVTMSH_LIB}/bashlib64-module-cnt.bash" \
+  "${DEVTMSH_LIB}/bashlib64-module-txt.bash" \
+  "${DEVTMSH_LIB}/bashlib64-module-fmt.bash" \
+  "${DEVTMSH_LIB}/bashlib64-module-fs.bash" \
+  "${DEVTMSH_LIB}/bashlib64-core.bash" \
   "${DEVTMSH_SRC}/env.bash" \
   "${DEVTMSH_SRC}/functions.bash" \
   "${DEVTMSH_SRC}/main.bash"
