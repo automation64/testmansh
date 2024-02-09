@@ -3,7 +3,7 @@
 #
 
 function testmansh_run_linter() {
-  bl64_dbg_app_show_function "@"
+  bl64_dbg_app_show_function "$@"
   local format="$1"
   local report="$2"
   local case="$3"
@@ -20,8 +20,6 @@ function testmansh_run_linter() {
   fi
 
   if [[ "$case" == 'all' ]]; then
-    bl64_check_directory "$TESTMANSH_DEFAULT_LINT_PATH" 'default path for source code files not found. Please use -c to indicate where cases are.' || return $?
-
     if [[ "$TESTMANSH_MODE" == "$TESTMANSH_MODE_CONTAINER" ]]; then
       prefix="${TESTMANSH_CONTAINER64_PROJECT}/${TESTMANSH_DEFAULT_LINT_PREFIX}/"
     else
@@ -76,7 +74,7 @@ function testmansh_run_linter() {
 }
 
 function testmansh_run_linter_container() {
-  bl64_dbg_app_show_function "@"
+  bl64_dbg_app_show_function "$@"
   local format="$1"
   local flags="$2"
 
@@ -92,7 +90,7 @@ function testmansh_run_linter_container() {
 }
 
 function testmansh_run_linter_native() {
-  bl64_dbg_app_show_function "@"
+  bl64_dbg_app_show_function "$@"
   local format="$1"
   local flags="$2"
 
@@ -109,7 +107,7 @@ function testmansh_run_linter_native() {
 }
 
 function testmansh_run_test() {
-  bl64_dbg_app_show_function "@"
+  bl64_dbg_app_show_function "$@"
   local format="$1"
   local report="$2"
   local debug="$3"
@@ -134,7 +132,6 @@ function testmansh_run_test() {
   fi
 
   if [[ "$case" == 'all' ]]; then
-    bl64_check_directory "$TESTMANSH_DEFAULT_TEST_PATH" 'default path for test-cases not found. Please use -c to indicate where the code is.' || return $?
     case="${TESTMANSH_DEFAULT_TEST_PREFIX}"
   else
     [[ ! -d ${TESTMANSH_PROJECT}/${case} ]] && case="${case}.bats"
@@ -149,7 +146,7 @@ function testmansh_run_test() {
 }
 
 function testmansh_run_test_native() {
-  bl64_dbg_app_show_function "@"
+  bl64_dbg_app_show_function "$@"
   local report="$1"
   local flags="$2"
   local target="$3"
@@ -165,7 +162,7 @@ function testmansh_run_test_native() {
 }
 
 function testmansh_run_test_container() {
-  bl64_dbg_app_show_function "@"
+  bl64_dbg_app_show_function "$@"
   local report="$1"
   local flags="$2"
   local target="$3"
@@ -178,16 +175,18 @@ function testmansh_run_test_container() {
     unset IFS
     bl64_msg_show_task "run test cases on the container image: $container"
     if [[ "$report" != "$BL64_VAR_DEFAULT" ]]; then
-      testmansh_run_test_container_batscore "$container" "$target" "$flags" "$env_file" >"$report" || return $?
+      testmansh_run_test_container_batscore "$container" "$target" "$flags" "$env_file" >"$report" ||
+        return $?
     else
-      testmansh_run_test_container_batscore "$container" "$target" "$flags" "$env_file" || return $?
+      testmansh_run_test_container_batscore "$container" "$target" "$flags" "$env_file" ||
+        return $?
     fi
   done
 
 }
 
 function testmansh_run_test_container_batscore() {
-  bl64_dbg_app_show_function "@"
+  bl64_dbg_app_show_function "$@"
   local container="$1"
   local target="$2"
   local flags="$3"
@@ -256,7 +255,6 @@ function testmansh_list_images() {
 
 function testmansh_list_test_scope() {
   bl64_dbg_app_show_function
-  bl64_check_directory "$TESTMANSH_DEFAULT_TEST_PATH" 'default path for test-cases not found. Please use -c to indicate where the code is.' || return $?
   bl64_msg_show_text "Test cases scope for bats-core (project: $TESTMANSH_PROJECT)"
   # shellcheck disable=SC2164
   cd "$TESTMANSH_PROJECT"
@@ -265,7 +263,6 @@ function testmansh_list_test_scope() {
 
 function testmansh_list_linter_scope() {
   bl64_dbg_app_show_function
-  bl64_check_directory "$TESTMANSH_DEFAULT_LINT_PATH" 'default path for source code files not found. Please use -c to indicate where cases are.' || return $?
   bl64_msg_show_text "Source code scope for shellcheck (project: $TESTMANSH_PROJECT)"
   # shellcheck disable=SC2164
   cd "$TESTMANSH_PROJECT"
@@ -274,6 +271,7 @@ function testmansh_list_linter_scope() {
 
 function testmansh_initialize() {
   local command="$1"
+  local case="$2"
 
   bl64_check_parameter 'command' ||
     { testmansh_help && return 1; }
@@ -282,20 +280,11 @@ function testmansh_initialize() {
   if [[ "$TESTMANSH_MODE" == "$TESTMANSH_MODE_CONTAINER" ]]; then
     bl64_cnt_setup || return $?
   elif [[ "$TESTMANSH_MODE" == "$TESTMANSH_MODE_DETECT" ]]; then
-    if ! bl64_cnt_is_inside_container && bl64_cnt_setup 2> /dev/null; then
+    if ! bl64_cnt_is_inside_container && bl64_cnt_setup 2>/dev/null; then
       TESTMANSH_MODE="$TESTMANSH_MODE_CONTAINER"
     else
       TESTMANSH_MODE="$TESTMANSH_MODE_NATIVE"
     fi
-  fi
-
-  if [[ "$command" == 'open_container' ]]; then
-    bl64_check_parameter 'TESTMANSH_IMAGES_TEST' 'Please specify what container image to open with the parameter -e Image' ||
-    return $?
-  elif [[ "$command" == 'run_linter' && "$TESTMANSH_MODE" == "$TESTMANSH_MODE_NATIVE" ]]; then
-    bl64_check_command "$TESTMANSH_CMD_SHELLCHECK" || return $?
-  elif [[ "$command" == 'run_test' && "$TESTMANSH_MODE" == "$TESTMANSH_MODE_NATIVE" ]]; then
-    bl64_check_command "$TESTMANSH_CMD_BATS" || return $?
   fi
 
   bl64_dbg_app_show_info 'Adjust project paths'
@@ -347,6 +336,42 @@ function testmansh_initialize() {
     'TESTMANSH_CMD_BATS_HELPER_ASSERT' \
     'TESTMANSH_CMD_BATS_HELPER_FILE'
 
+  # shellcheck disable=SC2249
+  case "$command" in
+  'open_container')
+    bl64_check_parameter 'TESTMANSH_IMAGES_TEST' 'Please specify what container image to open with the parameter -e Image' ||
+      return $?
+    ;;
+  'run_linter')
+    if [[ "$TESTMANSH_MODE" != "$TESTMANSH_MODE_CONTAINER" ]]; then
+      bl64_check_command "$TESTMANSH_CMD_SHELLCHECK" ||
+        return $?
+    fi
+    if [[ "$case" == 'all' ]]; then
+      bl64_check_directory "$TESTMANSH_DEFAULT_LINT_PATH" 'default path for test-cases not found. Please use -c to indicate where the code is.' ||
+        return $?
+    fi
+    ;;
+  'run_test')
+    if [[ "$TESTMANSH_MODE" != "$TESTMANSH_MODE_CONTAINER" ]]; then
+      bl64_check_command "$TESTMANSH_CMD_SHELLCHECK" ||
+        return $?
+    fi
+    if [[ "$case" == 'all' ]]; then
+      bl64_check_directory "$TESTMANSH_DEFAULT_TEST_PATH" 'default path for test-cases not found. Please use -c to indicate where the code is.' ||
+        return $?
+    fi
+    ;;
+  'list_linter_scope')
+    bl64_check_directory "$TESTMANSH_DEFAULT_LINT_PATH" 'default path for source code files not found. Please use -c to indicate where cases are.' ||
+      return $?
+    ;;
+  'list_test_scope')
+    bl64_check_directory "$TESTMANSH_DEFAULT_TEST_PATH" 'default path for test-cases not found. Please use -c to indicate where the code is.' ||
+      return $?
+    ;;
+  esac
+
   return 0
 }
 
@@ -364,11 +389,8 @@ By default testmansh assumes that scripts are organized using the following dire
   - project_path/test/samples/: test samples
   - project_path/test/lib/: shared code for test cases
 
-The tool also sets and exports shell environment variables that can be used directly in test cases. The content is automatically adjusted to native or container execution:
+The tool also sets and exports shell environment variables  'run_linter')
 
-  - TESTMANSH_PROJECT_ROOT: project base path (project/)
-  - TESTMANSH_PROJECT_BIN: dev time scripts (project/bin)
-  - TESTMANSH_PROJECT_SRC: source code (project/src)
   - TESTMANSH_PROJECT_LIB: dev time libs (project/lib)
   - TESTMANSH_PROJECT_BUILD: location for dev,test builds (project/build)
   - TESTMANSH_TEST: tests base path (project/test)

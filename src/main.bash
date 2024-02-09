@@ -40,7 +40,7 @@ while getopts ':tblioakqs:p:c:e:r:f:m:u:gj:V:D:h' testmansh_option; do
   esac
 done
 bl64_dbg_set_level "$testmansh_debug" && bl64_msg_set_level "$testmansh_verbose" || exit $?
-testmansh_initialize "$testmansh_command" || exit 1
+testmansh_initialize "$testmansh_command" "$testmansh_case" || exit 1
 
 bl64_msg_show_batch_start "$testmansh_command"
 case "$testmansh_command" in
