@@ -5,7 +5,7 @@
 # Author: serdigital64 (https://github.com/serdigital64)
 # License: GPL-3.0-or-later (https://www.gnu.org/licenses/gpl-3.0.txt)
 # Repository: https://github.com/automation64/bashlib64
-# Version: 1.12.0
+# Version: 1.13.0
 #######################################
 
 #
@@ -8007,9 +8007,9 @@ export TESTMANSH_DEFAULT_TEST_PATH
 export TESTMANSH_DEFAULT_LINT_PATH
 export TESTMANSH_ENV
 export TESTMANSH_CMD_BATS="${TESTMANSH_CMD_BATS:-/opt/bats-core/bin/bats}"
-export TESTMANSH_CMD_SHELLCHECK="${TESTMANSH_CMD_SHELLCHECK:-/usr/bin/shellcheck}"
+export TESTMANSH_CMD_SHELLCHECK="${TESTMANSH_CMD_SHELLCHECK:-}"
 export TESTMANSH_REGISTRY="${TESTMANSH_REGISTRY:-ghcr.io/automation64}"
-export TESTMANSH_IMAGES_TEST="${TESTMANSH_IMAGES_TEST:-bash-test/alpine-3-bash-test}"
+export TESTMANSH_IMAGES_TEST="${TESTMANSH_IMAGES_TEST:-bash-test/alpine-3-bash-test:latest}"
 
 # Bats-core internal variables
 export BATSLIB_TEMP_PRESERVE_ON_FAILURE
@@ -8397,7 +8397,15 @@ function testmansh_initialize() {
     ;;
   'run_linter')
     if [[ "$TESTMANSH_MODE" != "$TESTMANSH_MODE_CONTAINER" ]]; then
-      bl64_check_command "$TESTMANSH_CMD_SHELLCHECK" ||
+      if [[ -z "$TESTMANSH_CMD_SHELLCHECK" ]]; then
+        bl64_dbg_app_show_comments 'autodetect shellcheck'
+        if [[ -x  '/usr/bin/shellcheck' ]]; then
+          TESTMANSH_CMD_SHELLCHECK='/usr/bin/shellcheck'
+        elif [[ -x  '/usr/local/bin/shellcheck' ]]; then
+          TESTMANSH_CMD_SHELLCHECK='/usr/local/bin/shellcheck'
+        fi
+      fi
+      bl64_check_command "$TESTMANSH_CMD_SHELLCHECK" 'unable to find shellcheck tool' ||
         return $?
     fi
     if [[ "$case" == 'all' ]]; then
@@ -8406,10 +8414,6 @@ function testmansh_initialize() {
     fi
     ;;
   'run_test')
-    if [[ "$TESTMANSH_MODE" != "$TESTMANSH_MODE_CONTAINER" ]]; then
-      bl64_check_command "$TESTMANSH_CMD_SHELLCHECK" ||
-        return $?
-    fi
     if [[ "$case" == 'all' ]]; then
       bl64_check_directory "$TESTMANSH_DEFAULT_TEST_PATH" 'default path for test-cases not found. Please use -c to indicate where the code is.' ||
         return $?
@@ -8442,7 +8446,7 @@ By default testmansh assumes that scripts are organized using the following dire
   - project_path/test/samples/: test samples
   - project_path/test/lib/: shared code for test cases
 
-The tool also sets and exports shell environment variables  'run_linter')
+The tool also sets and exports shell environment variables:
 
   - TESTMANSH_PROJECT_LIB: dev time libs (project/lib)
   - TESTMANSH_PROJECT_BUILD: location for dev,test builds (project/build)

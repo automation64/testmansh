@@ -344,7 +344,15 @@ function testmansh_initialize() {
     ;;
   'run_linter')
     if [[ "$TESTMANSH_MODE" != "$TESTMANSH_MODE_CONTAINER" ]]; then
-      bl64_check_command "$TESTMANSH_CMD_SHELLCHECK" ||
+      if [[ -z "$TESTMANSH_CMD_SHELLCHECK" ]]; then
+        bl64_dbg_app_show_comments 'autodetect shellcheck'
+        if [[ -x  '/usr/bin/shellcheck' ]]; then
+          TESTMANSH_CMD_SHELLCHECK='/usr/bin/shellcheck'
+        elif [[ -x  '/usr/local/bin/shellcheck' ]]; then
+          TESTMANSH_CMD_SHELLCHECK='/usr/local/bin/shellcheck'
+        fi
+      fi
+      bl64_check_command "$TESTMANSH_CMD_SHELLCHECK" 'unable to find shellcheck tool' ||
         return $?
     fi
     if [[ "$case" == 'all' ]]; then
@@ -353,10 +361,6 @@ function testmansh_initialize() {
     fi
     ;;
   'run_test')
-    if [[ "$TESTMANSH_MODE" != "$TESTMANSH_MODE_CONTAINER" ]]; then
-      bl64_check_command "$TESTMANSH_CMD_SHELLCHECK" ||
-        return $?
-    fi
     if [[ "$case" == 'all' ]]; then
       bl64_check_directory "$TESTMANSH_DEFAULT_TEST_PATH" 'default path for test-cases not found. Please use -c to indicate where the code is.' ||
         return $?
@@ -389,7 +393,7 @@ By default testmansh assumes that scripts are organized using the following dire
   - project_path/test/samples/: test samples
   - project_path/test/lib/: shared code for test cases
 
-The tool also sets and exports shell environment variables  'run_linter')
+The tool also sets and exports shell environment variables:
 
   - TESTMANSH_PROJECT_LIB: dev time libs (project/lib)
   - TESTMANSH_PROJECT_BUILD: location for dev,test builds (project/build)
